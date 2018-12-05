@@ -9,15 +9,7 @@ import (
 )
 
 func main() {
-	polymer := readInput(os.Stdin)
-
-	var lastLen int
-
-	for lastLen != len(polymer) {
-		lastLen = len(polymer)
-		polymer = react(polymer)
-	}
-
+	polymer := react(readInput(os.Stdin))
 	log.Println("length of polymer:", len(polymer))
 }
 
@@ -32,12 +24,19 @@ func readInput(r io.Reader) []byte {
 }
 
 func react(polymer []byte) []byte {
-	for i := 0; i < len(polymer)-1; i++ {
+	i := 0
+	for i < len(polymer)-1 {
 		a := polymer[i]
 		b := polymer[i+1]
+		d := int(a) - int(b)
 
-		if a-b == 32 || b-a == 32 {
-			return append(polymer[:i], polymer[i+2:]...)
+		if d == 32 || d == -32 {
+			polymer = append(polymer[:i], polymer[i+2:]...)
+			if i > 0 {
+				i--
+			}
+		} else {
+			i++
 		}
 	}
 

@@ -10,15 +10,11 @@ import (
 )
 
 func main() {
-	var polymer []byte
-
-	polymer = readInput(os.Stdin)
-
+	polymer := readInput(os.Stdin)
 	shortestLength := math.MaxInt64
 
 	for char := 'A'; char <= 'Z'; char++ {
-		filtered := filterPolymer(polymer, char)
-		filtered = fullReact(filtered)
+		filtered := react(filterPolymer(polymer, char))
 		if len(filtered) < shortestLength {
 			shortestLength = len(filtered)
 		}
@@ -48,24 +44,20 @@ func filterPolymer(polymer []byte, char rune) []byte {
 	}, polymer)
 }
 
-func fullReact(polymer []byte) []byte {
-	var lastLen int
-
-	for lastLen != len(polymer) {
-		lastLen = len(polymer)
-		polymer = react(polymer)
-	}
-
-	return polymer
-}
-
 func react(polymer []byte) []byte {
-	for i := 0; i < len(polymer)-1; i++ {
+	i := 0
+	for i < len(polymer)-1 {
 		a := polymer[i]
 		b := polymer[i+1]
+		d := int(a) - int(b)
 
-		if a-b == 32 || b-a == 32 {
-			return append(polymer[:i], polymer[i+2:]...)
+		if d == 32 || d == -32 {
+			polymer = append(polymer[:i], polymer[i+2:]...)
+			if i > 0 {
+				i--
+			}
+		} else {
+			i++
 		}
 	}
 
