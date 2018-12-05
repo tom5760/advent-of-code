@@ -1,2 +1,2 @@
 #!/bin/sh
-go run ./$1 < $1/input
+go run ./day$1 < day$1/input
