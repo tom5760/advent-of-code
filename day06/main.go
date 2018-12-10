@@ -9,7 +9,11 @@ import (
 	"os"
 )
 
-const alphabet = "01234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+const (
+	SafeDistance = 10000
+
+	Alphabet = "01234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+)
 
 type Coordinate struct {
 	X, Y int
@@ -17,30 +21,19 @@ type Coordinate struct {
 
 func main() {
 	coords := readInput(os.Stdin)
-	areas := countAreas(coords)
 
-	// drawAreas(coords)
-
-	var maxArea int
-
-	for _, area := range areas {
-		if area > maxArea {
-			maxArea = area
-		}
-	}
-
-	log.Println("largest area size:", maxArea)
+	log.Println("(part 1) largest area size:", findMaxArea(coords))
+	log.Println("(part 2) safe area size:", findSafeArea(coords))
 }
 
 func readInput(r io.Reader) []Coordinate {
 	var coords []Coordinate
 
 	scanner := bufio.NewScanner(r)
-
 	for scanner.Scan() {
 		var c Coordinate
 		if _, err := fmt.Sscanf(scanner.Text(), "%d, %d", &c.X, &c.Y); err != nil {
-			log.Fatalln("failed to scan line:", err)
+			log.Fatalln("failed to parse line:", err)
 			return nil
 		}
 
@@ -55,47 +48,39 @@ func readInput(r io.Reader) []Coordinate {
 	return coords
 }
 
-func findBoundaries(coords []Coordinate) (minX, minY, maxX, maxY int) {
-	minX = math.MaxInt64
-	minY = math.MaxInt64
+func findMaxArea(coords []Coordinate) int {
+	areas := countAreas(coords)
 
-	for _, c := range coords {
-		if c.X < minX {
-			minX = c.X
-		} else if c.X > maxX {
-			maxX = c.X
-		}
-
-		if c.Y < minY {
-			minY = c.Y
-		} else if c.Y > maxY {
-			maxY = c.Y
+	var maxArea int
+	for _, area := range areas {
+		if area > maxArea {
+			maxArea = area
 		}
 	}
 
-	return minX, minY, maxX, maxY
+	return maxArea
 }
 
-func drawAreas(coords []Coordinate) {
+func findSafeArea(coords []Coordinate) int {
+	var size int
+
 	minX, minY, maxX, maxY := findBoundaries(coords)
+	for x := minX; x < maxX; x++ {
+		for y := minY; y < maxY; y++ {
 
-	for x := minX; x <= maxX; x++ {
-		for y := minY; y <= maxY; y++ {
-			i := closest(Coordinate{x, y}, coords)
-			if i == -1 {
-				fmt.Print(".")
-				continue
+			var totalDist int
+			xy := Coordinate{x, y}
+
+			for _, c := range coords {
+				totalDist += manhattanDistance(xy, c)
 			}
-
-			c := coords[i]
-			if c.X == x && c.Y == y {
-				fmt.Print("*")
-			} else {
-				fmt.Print(string(alphabet[i]))
+			if totalDist < SafeDistance {
+				size++
 			}
 		}
-		fmt.Printf("\n")
 	}
+
+	return size
 }
 
 func countAreas(coords []Coordinate) []int {
@@ -167,16 +152,34 @@ func closest(source Coordinate, coords []Coordinate) int {
 	return minI
 }
 
+func findBoundaries(coords []Coordinate) (minX, minY, maxX, maxY int) {
+	minX = math.MaxInt64
+	minY = math.MaxInt64
+
+	for _, c := range coords {
+		if c.X < minX {
+			minX = c.X
+		} else if c.X > maxX {
+			maxX = c.X
+		}
+
+		if c.Y < minY {
+			minY = c.Y
+		} else if c.Y > maxY {
+			maxY = c.Y
+		}
+	}
+
+	return minX, minY, maxX, maxY
+}
+
 func manhattanDistance(a, b Coordinate) int {
-	x := a.X - b.X
+	return abs(a.X-b.X) + abs(a.Y-b.Y)
+}
+
+func abs(x int) int {
 	if x < 0 {
-		x *= -1
+		return x * -1
 	}
-
-	y := a.Y - b.Y
-	if y < 0 {
-		y *= -1
-	}
-
-	return x + y
+	return x
 }

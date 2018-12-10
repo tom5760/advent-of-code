@@ -21,6 +21,23 @@ type Node struct {
 	Children []*Node
 }
 
+func (n *Node) Value() int64 {
+	if len(n.Children) == 0 {
+		return n.Sum()
+	}
+
+	var value int64
+
+	for _, i := range n.Metadata {
+		if i == 0 || i > int64(len(n.Children)) {
+			continue
+		}
+		value += n.Children[i-1].Value()
+	}
+
+	return value
+}
+
 func (n *Node) Sum() int64 {
 	var sum int64
 
@@ -39,7 +56,8 @@ func main() {
 	stack := readInput(os.Stdin)
 	root := parseTree(&stack)
 
-	log.Println("metadata sum:", root.Sum())
+	log.Println("(part 1) metadata sum:", root.Sum())
+	log.Println("(part 2) root value:", root.Value())
 }
 
 func readInput(r io.Reader) Stack {

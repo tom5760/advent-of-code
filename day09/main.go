@@ -71,7 +71,7 @@ type Game struct {
 	LastMarble  uint64
 }
 
-func (g *Game) Play() map[uint64]uint64 {
+func (g *Game) Play() uint64 {
 	scores := make(map[uint64]uint64)
 	var circle Circle
 
@@ -89,23 +89,24 @@ func (g *Game) Play() map[uint64]uint64 {
 		}
 	}
 
-	return scores
+	var highScore uint64
+	for _, score := range scores {
+		if score > highScore {
+			highScore = score
+		}
+	}
+
+	return highScore
 }
 
 func main() {
 	games := readInput(os.Stdin)
 
 	for _, game := range games {
-		scores := game.Play()
+		log.Println("(part 1) high score:", game.Play())
 
-		var maxScore uint64
-		for _, score := range scores {
-			if score > maxScore {
-				maxScore = score
-			}
-		}
-
-		log.Println("high score:", maxScore)
+		game.LastMarble *= 100
+		log.Println("(part 2) x100 high score:", game.Play(), "\n")
 	}
 }
 

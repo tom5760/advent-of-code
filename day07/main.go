@@ -8,14 +8,16 @@ import (
 	"math"
 	"os"
 	"sort"
+	"strings"
 )
 
 const (
-	// workerCount  = 2
-	// stepBaseTime = 0
+	// These are the values for the example.
+	// WorkerCount  = 2
+	// StepBaseTime = 0
 
-	workerCount  = 5
-	stepBaseTime = 60
+	WorkerCount  = 5
+	StepBaseTime = 60
 )
 
 type Constraint struct {
@@ -34,8 +36,9 @@ type Worker struct {
 }
 
 type Scheduler struct {
-	clock    uint64
-	numTasks int
+	clock     uint64
+	numTasks  int
+	taskOrder []string
 
 	eligible map[*Node]bool
 	complete map[*Node]bool
@@ -120,6 +123,7 @@ func (s *Scheduler) idleWorker() *Worker {
 
 func (s *Scheduler) done(task *Node) {
 	s.complete[task] = true
+	s.taskOrder = append(s.taskOrder, task.Step)
 
 	for _, next := range task.Next {
 		s.update(next)
@@ -158,21 +162,9 @@ func (s *Scheduler) nextClock() uint64 {
 
 func main() {
 	constraints := readInput(os.Stdin)
-	eligible := buildGraph(constraints)
 
-	scheduler := Scheduler{
-		numTasks: len(constraints),
-		eligible: eligible,
-		complete: make(map[*Node]bool),
-	}
-
-	for i := 0; i < workerCount; i++ {
-		scheduler.workers = append(scheduler.workers, new(Worker))
-	}
-
-	scheduler.Schedule()
-
-	log.Println("total time:", scheduler.clock)
+	log.Println("(part 1) step order:", singleOrder(constraints))
+	log.Println("(part 2) total time:", paralellOrder(constraints))
 }
 
 const inputFormat = "Step %s must be finished before step %s can begin."
@@ -231,7 +223,42 @@ func buildGraph(constraints []Constraint) map[*Node]bool {
 	return startNodes
 }
 
+func singleOrder(constraints []Constraint) string {
+	scheduler := Scheduler{
+		numTasks: len(constraints),
+		eligible: buildGraph(constraints),
+		complete: make(map[*Node]bool),
+		// Only add one worker for single-threaded work.
+		workers: []*Worker{&Worker{}},
+	}
+
+	scheduler.Schedule()
+
+	var sb strings.Builder
+	for _, step := range scheduler.taskOrder {
+		sb.WriteString(step)
+	}
+
+	return sb.String()
+}
+
+func paralellOrder(constraints []Constraint) uint64 {
+	scheduler := Scheduler{
+		numTasks: len(constraints),
+		eligible: buildGraph(constraints),
+		complete: make(map[*Node]bool),
+	}
+
+	for i := 0; i < WorkerCount; i++ {
+		scheduler.workers = append(scheduler.workers, new(Worker))
+	}
+
+	scheduler.Schedule()
+
+	return scheduler.clock
+}
+
 func taskTime(step string) uint64 {
 	// ASCII 'A' == 65
-	return stepBaseTime + (uint64(step[0]) - 64)
+	return StepBaseTime + (uint64(step[0]) - 64)
 }

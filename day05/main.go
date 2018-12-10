@@ -11,16 +11,9 @@ import (
 
 func main() {
 	polymer := readInput(os.Stdin)
-	shortestLength := math.MaxInt64
 
-	for char := 'A'; char <= 'Z'; char++ {
-		filtered := react(filterPolymer(polymer, char))
-		if len(filtered) < shortestLength {
-			shortestLength = len(filtered)
-		}
-	}
-
-	log.Println("length of shortest polymer:", shortestLength)
+	log.Println("(part 1) length of reacted polymer:", len(copyReact(polymer)))
+	log.Println("(part 2) length of shortest polymer:", shortestReact(polymer))
 }
 
 func readInput(r io.Reader) []byte {
@@ -31,6 +24,26 @@ func readInput(r io.Reader) []byte {
 	}
 
 	return bytes.TrimSpace(polymer)
+}
+
+// copyReact makes a copy, doesn't modify
+func copyReact(polymer []byte) []byte {
+	c := make([]byte, len(polymer))
+	copy(c, polymer)
+	return react(c)
+}
+
+func shortestReact(polymer []byte) int {
+	shortestLength := math.MaxInt64
+
+	for char := 'A'; char <= 'Z'; char++ {
+		filtered := react(filterPolymer(polymer, char))
+		if len(filtered) < shortestLength {
+			shortestLength = len(filtered)
+		}
+	}
+
+	return shortestLength
 }
 
 func filterPolymer(polymer []byte, char rune) []byte {
