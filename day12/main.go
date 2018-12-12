@@ -14,6 +14,8 @@ const (
 	initialStateHeader = "initial state: "
 
 	ruleWidth = 5
+
+	convergeCount = 3
 )
 
 type Garden map[int64]bool
@@ -168,17 +170,33 @@ func readInput(r io.Reader) (Garden, []Rule) {
 }
 
 func simulate(garden Garden, rules []Rule, generations uint64) int64 {
-	step := generations / 100
-	for step*100 < generations {
-		step++
-	}
+	var lastCount, lastDiff, diffCount int64
 
 	for i := uint64(0); i < generations; i++ {
 		garden = garden.Tick(rules)
-		if i%step == 0 {
-			log.Printf("%.0f%% complete (generation %d of %d)",
-				float64(i)/float64(generations)*100, i, generations)
+
+		// For large amounts of generations, eventually the growth will become
+		// linear each generation.
+		nextCount := garden.Count()
+		nextDiff := nextCount - lastCount
+
+		// Keep track of how many times the growth has been the same.
+		if nextDiff == lastDiff {
+			diffCount++
+		} else {
+			diffCount = 0
 		}
+
+		// After some amount of equal growths, conclude that the it will continue
+		// growing at that rate, and just calculate the remaining generations.
+		if diffCount == convergeCount {
+			log.Printf("sequence converged at generation %d, growing %d each tick",
+				i, nextDiff)
+			return nextCount + (nextDiff * int64(generations-i-1))
+		}
+
+		lastCount = nextCount
+		lastDiff = nextDiff
 	}
 
 	return garden.Count()
