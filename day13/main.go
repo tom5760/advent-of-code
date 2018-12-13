@@ -17,30 +17,18 @@ func (p Point) String() string {
 	return fmt.Sprintf("%d,%d", p.X, p.Y)
 }
 
-type RailKind int
+type RailKind byte
 
 const (
-	Vertical RailKind = iota
-	Horizontal
-	Curve
-	BackCurve
-	Intersection
+	Vertical     RailKind = '|'
+	Horizontal   RailKind = '-'
+	Curve        RailKind = '/'
+	BackCurve    RailKind = '\\'
+	Intersection RailKind = '+'
 )
 
 func (k RailKind) String() string {
-	switch k {
-	case Vertical:
-		return "|"
-	case Horizontal:
-		return "-"
-	case Curve:
-		return "/"
-	case BackCurve:
-		return "\\"
-	case Intersection:
-		return "+"
-	}
-	panic("unexpected rail kind")
+	return string(k)
 }
 
 type Rail struct {
@@ -50,6 +38,7 @@ type Rail struct {
 	Carts map[*Cart]bool
 }
 
+// Enter returns true if there was a collision.
 func (r *Rail) Enter(c *Cart) bool {
 	r.Carts[c] = true
 	return len(r.Carts) > 1
@@ -71,13 +60,13 @@ func (r *Rail) String() string {
 	return r.Kind.String()
 }
 
-type CartDirection int
+type CartDirection byte
 
 const (
-	Up CartDirection = iota
-	Right
-	Down
-	Left
+	Up    CartDirection = '^'
+	Right CartDirection = '>'
+	Down  CartDirection = 'v'
+	Left  CartDirection = '<'
 )
 
 func (d CartDirection) TurnRight() CartDirection {
@@ -109,17 +98,7 @@ func (d CartDirection) TurnLeft() CartDirection {
 }
 
 func (d CartDirection) String() string {
-	switch d {
-	case Up:
-		return "^"
-	case Right:
-		return ">"
-	case Down:
-		return "v"
-	case Left:
-		return "<"
-	}
-	panic("invalid direction")
+	return string(d)
 }
 
 type CartTurn int
@@ -136,6 +115,7 @@ type Cart struct {
 	NextTurn  CartTurn
 }
 
+// Move returns true if there was a collision.
 func (c *Cart) Move(rails map[Point]*Rail) bool {
 	rails[c.Point].Leave(c)
 
@@ -153,6 +133,7 @@ func (c *Cart) Move(rails map[Point]*Rail) bool {
 	return rails[c.Point].Enter(c)
 }
 
+// Tick returns true if there was a collision.
 func (c *Cart) Tick(rails map[Point]*Rail) bool {
 	if c.Move(rails) {
 		return true
@@ -197,6 +178,7 @@ type Mine struct {
 	Carts map[*Cart]bool
 }
 
+// Tick returns a slice of collision points.
 func (m *Mine) Tick() []*Point {
 	var crashes []*Point
 
@@ -249,42 +231,33 @@ func readInput(r io.Reader) ([]*Rail, []*Cart) {
 			var rail *Rail
 
 			switch b {
-			case '^':
-				rail = &Rail{Kind: Vertical}
-				cart = &Cart{Direction: Up}
-			case 'v':
-				rail = &Rail{Kind: Vertical}
-				cart = &Cart{Direction: Down}
-			case '>':
-				rail = &Rail{Kind: Horizontal}
-				cart = &Cart{Direction: Right}
-			case '<':
-				rail = &Rail{Kind: Horizontal}
-				cart = &Cart{Direction: Left}
+			case '^', 'v', '>', '<':
+				cart = &Cart{Direction: CartDirection(b)}
 
-			case '|':
-				rail = &Rail{Kind: Vertical}
-			case '-':
-				rail = &Rail{Kind: Horizontal}
-			case '/':
-				rail = &Rail{Kind: Curve}
-			case '\\':
-				rail = &Rail{Kind: BackCurve}
-			case '+':
-				rail = &Rail{Kind: Intersection}
+			case '|', '-', '/', '\\', '+':
+				rail = &Rail{Kind: RailKind(b)}
 			}
 
 			point := Point{x, y}
+
+			if cart != nil {
+				cart.Point = point
+				carts = append(carts, cart)
+
+				rail = new(Rail)
+
+				switch cart.Direction {
+				case Up, Down:
+					rail.Kind = Vertical
+				case Left, Right:
+					rail.Kind = Horizontal
+				}
+			}
 
 			if rail != nil {
 				rail.Point = point
 				rail.Carts = make(map[*Cart]bool)
 				rails = append(rails, rail)
-			}
-
-			if cart != nil {
-				cart.Point = point
-				carts = append(carts, cart)
 			}
 
 			x++
