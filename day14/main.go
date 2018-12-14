@@ -7,14 +7,19 @@ import (
 )
 
 const (
-	AfterCount = 10
+	AfterCount   = 10
+	TotalRecipes = 409551
 )
 
-var TotalRecipes = []int{5, 9, 18, 2018, 409551}
+var Search = []int{4, 0, 9, 5, 5, 1}
 
 type ScoreBoard struct {
 	Board []int
 	Elves [2]int
+
+	Search  []int
+	EndI    int
+	searchI int
 }
 
 func (b *ScoreBoard) Digits(total, after int) string {
@@ -30,6 +35,10 @@ func (b *ScoreBoard) Tick() {
 	b.selectRecipe()
 }
 
+func (b *ScoreBoard) Check() bool {
+	return b.searchI == len(b.Search)
+}
+
 func (b *ScoreBoard) get(i int) int {
 	return b.Board[b.Elves[i]]
 }
@@ -42,8 +51,30 @@ func (b *ScoreBoard) makeRecipes() {
 
 	if tensDigit != 0 {
 		b.Board = append(b.Board, tensDigit)
+		b.search(tensDigit)
 	}
+
 	b.Board = append(b.Board, onesDigit)
+	b.search(onesDigit)
+}
+
+func (b *ScoreBoard) search(digit int) {
+	if b.searchI >= len(b.Search) {
+		return
+	}
+
+	if b.Search[b.searchI] == digit {
+		b.searchI++
+	} else {
+		if b.searchI != 0 {
+			b.searchI = 0
+			b.search(digit)
+		}
+	}
+
+	if b.searchI >= len(b.Search) {
+		b.EndI = len(b.Board) - len(b.Search)
+	}
 }
 
 func (b *ScoreBoard) selectRecipe() {
@@ -52,19 +83,26 @@ func (b *ScoreBoard) selectRecipe() {
 }
 
 func main() {
-	for _, total := range TotalRecipes {
-		board := ScoreBoard{
-			Board: []int{3, 7},
-			Elves: [...]int{0, 1},
-		}
-
-		// log.Println(board.Board)
-
-		for len(board.Board) < total+AfterCount {
-			board.Tick()
-			// log.Println(board.Board)
-		}
-
-		log.Printf("(part 1) ten recipes after %d recipes: %s", total, board.Digits(total, AfterCount))
+	board := ScoreBoard{
+		Board: []int{3, 7},
+		Elves: [...]int{0, 1},
 	}
+
+	for len(board.Board) < TotalRecipes+AfterCount {
+		board.Tick()
+	}
+
+	log.Printf("(part 1) ten recipes after %d recipes: %s", TotalRecipes, board.Digits(TotalRecipes, AfterCount))
+
+	board = ScoreBoard{
+		Board:  []int{3, 7},
+		Elves:  [...]int{0, 1},
+		Search: Search,
+	}
+
+	for !board.Check() {
+		board.Tick()
+	}
+
+	log.Println("(part 2) recipie count:", len(board.Board[:board.EndI]))
 }
