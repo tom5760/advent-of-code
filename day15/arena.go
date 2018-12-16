@@ -6,50 +6,67 @@ import (
 	"strings"
 )
 
+type Results struct {
+	Rounds  int
+	TotalHP int
+	Outcome int
+}
+
 type Arena struct {
 	Width, Height uint64
+
+	LastRound int
 
 	Cells []*Cell
 	Units []*Unit
 }
 
-// Tick returns whether the battle is over.
-func (a *Arena) Tick() bool {
-	// log.Println("round start")
+func (a *Arena) Battle() {
+	a.LastRound = 1
+	for !a.Round() {
+		// log.Println(a)
+	}
+	a.LastRound--
+}
+
+// Round returns whether the battle is over.
+func (a *Arena) Round() bool {
 	if len(a.Units) == 0 {
 		return true
 	}
 
-	a.sortUnits()
+	sort.Slice(a.Units, func(i, j int) bool {
+		return Less(a.Units[i].Point, a.Units[j].Point)
+	})
 
-	for i := 0; i < len(a.Units); i++ {
-		unit := a.Units[i]
-		// log.Println("tick for", unit, unit.Point)
-
-		battleOver, killedUnit := unit.Tick(a)
-
-		if killedUnit != nil {
-			// log.Println(unit, unit.Point, "killed", killedUnit, killedUnit.Point)
-			killedUnit.Cell.Unit = nil
-			killedUnit.Cell = nil
-
-			for j, u := range a.Units {
-				if u == killedUnit {
-					a.Units = append(a.Units[:j], a.Units[j+1:]...)
-					if i > 0 && i > j {
-						i--
-					}
-					break
-				}
-			}
-		}
-
-		if battleOver {
+	for _, unit := range a.Units {
+		if unit.Turn(a) {
 			return true
 		}
 	}
 
+	// Clean up dead units.
+	for i := 0; i < len(a.Units); i++ {
+		if a.Units[i].HP <= 0 {
+			a.Units = append(a.Units[:i], a.Units[i+1:]...)
+			i--
+		}
+	}
+
+	a.LastRound++
 	return false
+}
+
+func (a *Arena) TotalHP() int {
+	var total int
+	for _, unit := range a.Units {
+		total += int(unit.HP)
+	}
+	return total
+}
+
+func (a *Arena) Outcome() int {
+	return a.LastRound * a.TotalHP()
 }
 
 func (a *Arena) String() string {
@@ -81,11 +98,4 @@ func (a *Arena) String() string {
 
 func (a *Arena) cell(x, y uint64) *Cell {
 	return a.Cells[y*a.Width+x]
-}
-
-// Sort units into reading order.
-func (a *Arena) sortUnits() {
-	sort.Slice(a.Units, func(i, j int) bool {
-		return Less(a.Units[i].Point, a.Units[j].Point)
-	})
 }

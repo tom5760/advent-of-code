@@ -30,15 +30,12 @@ func readInput(r io.Reader) *Arena {
 
 			if b == 'G' || b == 'E' {
 				unit := &Unit{
-					Kind:  UnitKind(b),
-					Point: point,
-					Cell:  cell,
-					AP:    DefaultAP,
-					HP:    DefaultHP,
+					Kind: UnitKind(b),
+					AP:   DefaultAP,
+					HP:   DefaultHP,
 				}
-
 				cell.Kind = Floor
-				cell.Unit = unit
+				cell.Enter(unit)
 
 				arena.Units = append(arena.Units, unit)
 			}
@@ -62,24 +59,8 @@ func readInput(r io.Reader) *Arena {
 
 func main() {
 	arena := readInput(os.Stdin)
-	log.Println("initial:", arena)
+	arena.Battle()
 
-	round := 1
-	for !arena.Tick() {
-		// for _, unit := range arena.Units {
-		// 	log.Println(unit, unit.Point, "HP", unit.HP)
-		// }
-		log.Println("round", round, arena)
-
-		round++
-		// time.Sleep(500 * time.Millisecond)
-	}
-	round--
-
-	var totalHP int
-	for _, unit := range arena.Units {
-		totalHP += int(unit.HP)
-	}
-
-	log.Printf("(part 1) battle outcome after %d rounds, %d total HP: %d", round, totalHP, round*totalHP)
+	log.Printf("(part 1) battle outcome after %d rounds, %d total HP: %d",
+		arena.LastRound, arena.TotalHP(), arena.Outcome())
 }
