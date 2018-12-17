@@ -19,7 +19,6 @@ func (c *Cell) Enter(unit *Unit) {
 		unit.Cell.Leave(unit)
 	}
 
-	unit.Point = c.Point
 	unit.Cell = c
 	c.Unit = unit
 }

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"math"
 	"sort"
 )
 
@@ -17,9 +18,8 @@ const (
 )
 
 type Unit struct {
-	Kind  UnitKind
-	Point Point
-	Cell  *Cell
+	Kind UnitKind
+	Cell *Cell
 
 	AP int64
 	HP int64
@@ -67,7 +67,7 @@ func (u *Unit) findTargetCells(arena *Arena, enemies []*Unit) []*Cell {
 	var cells []*Cell
 	for _, enemy := range enemies {
 		for _, cell := range enemy.Cell.FloorNeighbors(arena) {
-			if cell.Unit == nil || cell.Unit == u {
+			if cell.Unit == nil || (cell.Unit != nil && cell.Unit == u) {
 				cells = append(cells, cell)
 			}
 		}
@@ -75,89 +75,79 @@ func (u *Unit) findTargetCells(arena *Arena, enemies []*Unit) []*Cell {
 	return cells
 }
 
+// Copied mostly from: https://www.reddit.com/r/adventofcode/comments/a6chwa/2018_day_15_solutions/ebtwcqr/
 func (u *Unit) move(arena *Arena, targetCells []*Cell) {
-	type nextCell struct {
-		next     *Cell
-		distance uint64
+	type data struct {
+		cell *Cell
+		dist uint64
 	}
 
-	var nextCells []nextCell
-	for _, targetCell := range targetCells {
-		cell, distance := NextCell(arena, u.Cell, targetCell)
-		if cell == nil {
-			continue
+	visiting := []data{{u.Cell, 0}}
+	meta := map[*Cell]data{u.Cell: data{nil, 0}}
+	seen := make(map[*Cell]bool)
+
+	for len(visiting) > 0 {
+		cur := visiting[0]
+		visiting = visiting[1:]
+
+	neighborLoop:
+		for _, neighbor := range cur.cell.EmptyNeighbors(arena) {
+			neighborData, ok := meta[neighbor]
+			if !ok {
+				meta[neighbor] = data{cur.cell, cur.dist + 1}
+			} else if cur.dist+1 < neighborData.dist {
+				meta[neighbor] = data{cur.cell, cur.dist + 1}
+			} else if cur.dist+1 == neighborData.dist {
+				if Less(cur.cell.Point, neighborData.cell.Point) {
+					meta[neighbor] = data{cur.cell, cur.dist + 1}
+				}
+			}
+
+			if !seen[neighbor] {
+				for _, vd := range visiting {
+					if vd.cell == neighbor {
+						continue neighborLoop
+					}
+				}
+				visiting = append(visiting, data{neighbor, cur.dist + 1})
+			}
 		}
-		nextCells = append(nextCells, nextCell{
-			next:     cell,
-			distance: distance,
-		})
+
+		seen[cur.cell] = true
 	}
 
-	if len(nextCells) == 0 {
+	var minDist uint64 = math.MaxUint64
+	for _, targetCell := range targetCells {
+		m, ok := meta[targetCell]
+		if ok && m.dist < minDist {
+			minDist = m.dist
+		}
+	}
+
+	var minTargets []*Cell
+	for _, targetCell := range targetCells {
+		m, ok := meta[targetCell]
+		if ok && m.dist == minDist {
+			minTargets = append(minTargets, targetCell)
+		}
+	}
+
+	if len(minTargets) == 0 {
 		return
 	}
 
-	sort.Slice(nextCells, func(i, j int) bool {
-		a := nextCells[i]
-		b := nextCells[j]
-
-		if a.distance < b.distance {
-			return true
-		}
-		if a.distance > b.distance {
-			return false
-		}
-		return Less(a.next.Point, b.next.Point)
+	sort.Slice(minTargets, func(i, j int) bool {
+		return Less(minTargets[i].Point, minTargets[j].Point)
 	})
 
-	// log.Println("moving from", u.Cell.Point, "->", nextCells[0].next.Point)
-	nextCells[0].next.Enter(u)
+	closest := minTargets[0]
+
+	for meta[closest].dist > 1 {
+		closest = meta[closest].cell
+	}
+
+	closest.Enter(u)
 }
-
-// func (u *Unit) move(arena *Arena, targetCells []*Cell) {
-// 	type reachableCell struct {
-// 		dist   uint64
-// 		next   *Cell
-// 		target *Cell
-// 	}
-
-// 	var reachable []reachableCell
-// 	var minDistance uint64 = math.MaxUint64
-
-// 	for _, targetCell := range targetCells {
-// 		r := reachableCell{target: targetCell}
-// 		r.dist, r.next = AStar(arena, u.Cell, targetCell)
-// 		if r.next != nil {
-// 			reachable = append(reachable, r)
-// 			if r.dist < minDistance {
-// 				minDistance = r.dist
-// 			}
-// 		}
-// 	}
-
-// 	if len(reachable) == 0 {
-// 		return
-// 	}
-
-// 	var minimum []reachableCell
-// 	for _, r := range reachable {
-// 		if r.dist == minDistance {
-// 			// log.Println("minimum reachable", r.next.Point)
-// 			minimum = append(minimum, r)
-// 		}
-// 	}
-
-// 	sort.Slice(minimum, func(i, j int) bool {
-// 		return Less(reachable[i].target.Point, reachable[j].target.Point)
-// 	})
-
-// 	nextCell := minimum[0].next
-// 	// log.Println("moving to ", nextCell.Point)
-
-// 	if u.Cell != nextCell {
-// 		nextCell.Enter(u)
-// 	}
-// }
 
 func (u *Unit) attack(enemies []*Unit) {
 	adjacentEnemies := u.adjacentEnemies(enemies)
@@ -174,7 +164,7 @@ func (u *Unit) attack(enemies []*Unit) {
 			return true
 		}
 		if a.HP == b.HP {
-			return Less(a.Point, b.Point)
+			return Less(a.Cell.Point, b.Cell.Point)
 		}
 		return false
 	})
@@ -186,7 +176,7 @@ func (u *Unit) adjacentEnemies(enemies []*Unit) []*Unit {
 	var adjacent []*Unit
 
 	for _, enemy := range enemies {
-		if Adjacent(u.Point, enemy.Point) {
+		if Adjacent(u.Cell.Point, enemy.Cell.Point) {
 			adjacent = append(adjacent, enemy)
 		}
 	}

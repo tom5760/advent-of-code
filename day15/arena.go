@@ -24,7 +24,7 @@ type Arena struct {
 func (a *Arena) Battle() {
 	a.LastRound = 1
 	for !a.Round() {
-		// log.Println(a)
+		// log.Println(a.LastRound, a)
 	}
 	a.LastRound--
 }
@@ -36,12 +36,14 @@ func (a *Arena) Round() bool {
 	}
 
 	sort.Slice(a.Units, func(i, j int) bool {
-		return Less(a.Units[i].Point, a.Units[j].Point)
+		return Less(a.Units[i].Cell.Point, a.Units[j].Cell.Point)
 	})
 
+	isOver := false
 	for _, unit := range a.Units {
 		if unit.Turn(a) {
-			return true
+			isOver = true
+			break
 		}
 	}
 
@@ -53,8 +55,10 @@ func (a *Arena) Round() bool {
 		}
 	}
 
-	a.LastRound++
-	return false
+	if !isOver {
+		a.LastRound++
+	}
+	return isOver
 }
 
 func (a *Arena) TotalHP() int {
@@ -83,7 +87,7 @@ func (a *Arena) String() string {
 		sb.WriteString("   ")
 
 		for _, unit := range a.Units {
-			if unit.Point.Y == y {
+			if unit.Cell.Point.Y == y {
 				sb.WriteString(fmt.Sprintf("%v(%d), ", unit, unit.HP))
 			}
 		}

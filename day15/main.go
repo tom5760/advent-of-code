@@ -2,7 +2,9 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"io"
+	"io/ioutil"
 	"log"
 	"os"
 )
@@ -58,9 +60,45 @@ func readInput(r io.Reader) *Arena {
 }
 
 func main() {
-	arena := readInput(os.Stdin)
+	initialInput, err := ioutil.ReadAll(os.Stdin)
+	if err != nil {
+		log.Fatalln("failed to read input:", err)
+		return
+	}
+
+	arena := readInput(bytes.NewReader(initialInput))
 	arena.Battle()
 
 	log.Printf("(part 1) battle outcome after %d rounds, %d total HP: %d",
 		arena.LastRound, arena.TotalHP(), arena.Outcome())
+
+	elfAP := int64(4)
+	for {
+		arena = readInput(bytes.NewReader(initialInput))
+
+		var initialElves int
+		for _, unit := range arena.Units {
+			if unit.Kind == Elf {
+				initialElves++
+				unit.AP = elfAP
+			}
+		}
+
+		arena.Battle()
+
+		var finalElves int
+		for _, unit := range arena.Units {
+			if unit.Kind == Elf {
+				finalElves++
+			}
+		}
+
+		if initialElves == finalElves {
+			log.Printf("(part 2) battle outcome with %d AP after %d rounds, %d total HP: %d",
+				elfAP, arena.LastRound, arena.TotalHP(), arena.Outcome())
+			return
+		}
+
+		elfAP++
+	}
 }
