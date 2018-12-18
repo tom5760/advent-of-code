@@ -57,8 +57,10 @@ func TrickleIterative(w *World, start *Cell) bool {
 		}
 
 		down := current.Down(w)
-		if !closedSet[down] && down.Kind == SandCell {
-			openSet[down] = true
+		if down.Kind == SandCell {
+			if !closedSet[down] {
+				openSet[down] = true
+			}
 			continue
 		}
 
@@ -354,7 +356,7 @@ func main() {
 	// log.Println("world:", world)
 
 	world.Flow()
-	// log.Println("world:", world)
+	log.Println("world:", world)
 
 	log.Println("(part 1) water reachable tile count:", world.CountReachable())
 }
