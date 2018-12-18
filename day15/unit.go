@@ -83,7 +83,7 @@ func (u *Unit) move(arena *Arena, targetCells []*Cell) {
 	}
 
 	visiting := []data{{u.Cell, 0}}
-	meta := map[*Cell]data{u.Cell: data{nil, 0}}
+	meta := map[*Cell]data{u.Cell: {nil, 0}}
 	seen := make(map[*Cell]bool)
 
 	for len(visiting) > 0 {

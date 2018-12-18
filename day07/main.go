@@ -229,7 +229,7 @@ func singleOrder(constraints []Constraint) string {
 		eligible: buildGraph(constraints),
 		complete: make(map[*Node]bool),
 		// Only add one worker for single-threaded work.
-		workers: []*Worker{&Worker{}},
+		workers: []*Worker{{}},
 	}
 
 	scheduler.Schedule()
