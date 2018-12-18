@@ -29,57 +29,39 @@ const (
 	ReachableTile Tile = '|'
 )
 
-type Point struct {
-	X, Y int
-}
-
-func (p Point) Up() Point {
-	return Point{p.X, p.Y - 1}
-}
-
-func (p Point) Down() Point {
-	return Point{p.X, p.Y + 1}
-}
-
-func (p Point) Left() Point {
-	return Point{p.X - 1, p.Y}
-}
-
-func (p Point) Right() Point {
-	return Point{p.X + 1, p.Y}
-}
-
 type World struct {
 	MinX, MinY, MaxX, MaxY int
 	Width, Height          int
 	Tiles                  [][]Tile
 }
 
-func (w *World) CountReachable() int {
-	var count int
+func (w *World) ForEach(fn func(x, y int, t Tile)) {
 	for y := w.MinY; y <= w.MaxY; y++ {
 		for x := w.MinX - 1; x <= w.MaxX+1; x++ {
-			tile := w.Tile(x, y)
-			if tile != nil && (*tile == ReachableTile || *tile == WaterTile) {
-				count++
-			}
+			fn(x, y, *w.Tile(x, y))
 		}
 	}
+}
 
+func (w *World) CountReachable() int {
+	var count int
+	w.ForEach(func(x, y int, t Tile) {
+		switch t {
+		case ReachableTile, WaterTile:
+			count++
+		}
+	})
 	return count
 }
 
 func (w *World) CountStable() int {
 	var count int
-	for y := w.MinY; y <= w.MaxY; y++ {
-		for x := w.MinX - 1; x <= w.MaxX+1; x++ {
-			tile := w.Tile(x, y)
-			if tile != nil && *tile == WaterTile {
-				count++
-			}
+	w.ForEach(func(x, y int, t Tile) {
+		switch t {
+		case WaterTile:
+			count++
 		}
-	}
-
+	})
 	return count
 }
 
