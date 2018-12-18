@@ -5,8 +5,8 @@ import (
 	"strconv"
 )
 
-func DigitCountInt64(x int64) int {
-	return len(strconv.FormatInt(x, 10))
+func DigitCountInt(x int) int {
+	return len(strconv.Itoa(x))
 }
 
 func MaxInt(ints ...int) int {
