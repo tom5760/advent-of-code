@@ -55,12 +55,26 @@ type World struct {
 	Tiles                  [][]Tile
 }
 
-func (w *World) Count() int {
+func (w *World) CountReachable() int {
 	var count int
 	for y := w.MinY; y <= w.MaxY; y++ {
 		for x := w.MinX - 1; x <= w.MaxX+1; x++ {
 			tile := w.Tile(x, y)
 			if tile != nil && (*tile == ReachableTile || *tile == WaterTile) {
+				count++
+			}
+		}
+	}
+
+	return count
+}
+
+func (w *World) CountStable() int {
+	var count int
+	for y := w.MinY; y <= w.MaxY; y++ {
+		for x := w.MinX - 1; x <= w.MaxX+1; x++ {
+			tile := w.Tile(x, y)
+			if tile != nil && *tile == WaterTile {
 				count++
 			}
 		}
@@ -276,5 +290,6 @@ func main() {
 	Flow(world)
 	// log.Println("world:", world)
 
-	log.Println("(part 1) water reachable tile count:", world.Count())
+	log.Println("(part 1) water reachable tile count:", world.CountReachable())
+	log.Println("(part 2) water stable tile count:", world.CountStable())
 }
