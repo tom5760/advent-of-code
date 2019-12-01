@@ -1,4 +1,4 @@
-Advent of Code 2018
-===================
+Advent of Code
+==============
 
-Solutions to [2018's Advent of Code](https://adventofcode.com/2018/).
+Solutions to the [Advent of Code](https://adventofcode.com/).
