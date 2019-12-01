@@ -1,14 +1,19 @@
 package main
 
-import "math"
-
 // FuelForModule calculates the required fuel for a module given its mass.
+//
+// Fuel required to launch a given module is based on its mass. Specifically,
+// to find the fuel required for a module, take its mass, divide by three,
+// round down, and subtract 2.
 func FuelForModule(mass uint64) uint64 {
-	fuel := math.Floor(float64(mass)/3) - 2
-	if fuel < 0 {
+	// Go integer division truncates towards zero.
+	fuel := mass / 3
+
+	if fuel < 2 {
 		return 0
 	}
-	return uint64(fuel)
+
+	return fuel - 2
 }
 
 // TotalFuelForModule calculates the required fuel for a module given its mass,
@@ -16,15 +21,12 @@ func FuelForModule(mass uint64) uint64 {
 func TotalFuelForModule(mass uint64) uint64 {
 	var total uint64
 
-	cur := mass
-
 	for {
-		fuel := FuelForModule(cur)
-		if fuel == 0 {
+		mass = FuelForModule(mass)
+		if mass == 0 {
 			return total
 		}
 
-		total += fuel
-		cur = fuel
+		total += mass
 	}
 }
