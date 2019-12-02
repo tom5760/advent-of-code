@@ -50,7 +50,8 @@ func (c *Computer) String() string {
 		case opMul:
 			if len(c.Memory)-i <= 3 {
 				fmt.Fprintf(&sb, "%d ", op)
-				i += 1
+				i++
+
 				continue
 			}
 
@@ -71,11 +72,11 @@ func (c *Computer) String() string {
 
 		case opEnd:
 			fmt.Fprintf(&sb, "%s\n", op)
-			i += 1
+			i++
 
 		default:
 			fmt.Fprintf(&sb, "%d ", op)
-			i += 1
+			i++
 		}
 	}
 

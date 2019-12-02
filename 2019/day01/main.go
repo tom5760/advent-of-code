@@ -24,14 +24,14 @@ func run() int {
 	return 0
 }
 
-// What is the sum of the fuel requirements for all of the modules on your
-// spacecraft?
+// Part1 - What is the sum of the fuel requirements for all of the modules on
+// your spacecraft?
 func Part1(modules []uint64) uint64 {
 	return common.MapSumUint64(modules, FuelForModule)
 }
 
-// What is the sum of the fuel requirements for all of the modules on your
-// spacecraft when also taking into account the mass of the added fuel?
+// Part2 - What is the sum of the fuel requirements for all of the modules on
+// your spacecraft when also taking into account the mass of the added fuel?
 func Part2(modules []uint64) uint64 {
 	return common.MapSumUint64(modules, TotalFuelForModule)
 }

@@ -25,6 +25,7 @@ func TestPart1(t *testing.T) {
 		t.Fatalf("failed to run part 1: %v", err)
 		return
 	}
+
 	if expectedPart1 != actual {
 		t.Errorf("part 1 expected %v != %v", expectedPart1, actual)
 	}
@@ -42,6 +43,7 @@ func TestPart2(t *testing.T) {
 		t.Fatalf("failed to run part 2: %v", err)
 		return
 	}
+
 	if expectedPart2 != actual {
 		t.Errorf("part 2 expected %v != %v", expectedPart2, actual)
 	}
