@@ -10,12 +10,12 @@ func _() {
 	var x [1]struct{}
 	_ = x[opAdd-1]
 	_ = x[opMul-2]
-	_ = x[opEnd-99]
+	_ = x[opHalt-99]
 }
 
 const (
 	_opcode_name_0 = "AddMul"
-	_opcode_name_1 = "End"
+	_opcode_name_1 = "Halt"
 )
 
 var (
