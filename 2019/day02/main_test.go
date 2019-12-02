@@ -9,31 +9,39 @@ import (
 )
 
 const (
-	expectedPart1 = 3299598
-	expectedPart2 = 4946546
+	expectedPart1 = 3760627
+	expectedPart2 = 7195
 )
 
 func TestPart1(t *testing.T) {
-	modules, err := readInput()
+	memory, err := readInput()
 	if err != nil {
 		t.Fatalf("failed to read input: %v", err)
 		return
 	}
 
-	actual := Part1(modules)
+	actual, err := Part1(memory)
+	if err != nil {
+		t.Fatalf("failed to run part 1: %v", err)
+		return
+	}
 	if expectedPart1 != actual {
 		t.Errorf("part 1 expected %v != %v", expectedPart1, actual)
 	}
 }
 
 func TestPart2(t *testing.T) {
-	modules, err := readInput()
+	memory, err := readInput()
 	if err != nil {
 		t.Fatalf("failed to read input: %v", err)
 		return
 	}
 
-	actual := Part2(modules)
+	actual, err := Part2(memory)
+	if err != nil {
+		t.Fatalf("failed to run part 2: %v", err)
+		return
+	}
 	if expectedPart2 != actual {
 		t.Errorf("part 2 expected %v != %v", expectedPart2, actual)
 	}
@@ -46,10 +54,10 @@ func readInput() ([]uint64, error) {
 	}
 	defer f.Close()
 
-	modules, err := common.ReadUint64Slice(f, nil)
+	memory, err := common.ReadUint64Slice(f, common.ScanCommas)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read input: %w", err)
 	}
 
-	return modules, nil
+	return memory, nil
 }

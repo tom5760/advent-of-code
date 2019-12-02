@@ -12,7 +12,7 @@ func main() {
 }
 
 func run() int {
-	modules, err := common.ReadUint64Slice(os.Stdin)
+	modules, err := common.ReadUint64Slice(os.Stdin, nil)
 	if err != nil {
 		log.Println("failed to read input:", err)
 		return 1
