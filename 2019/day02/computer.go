@@ -90,10 +90,10 @@ func (c *Computer) Run() error {
 
 		switch op {
 		case opAdd:
-			c.PC += c.add()
+			c.add()
 
 		case opMul:
-			c.PC += c.mul()
+			c.mul()
 
 		case opEnd:
 			return nil
@@ -104,26 +104,32 @@ func (c *Computer) Run() error {
 	}
 }
 
+// arg dereferences a pointer at position PC+i.
 func (c *Computer) arg(i uint64) uint64 {
 	addr := c.Memory[c.PC+i]
 	return c.Memory[addr]
 }
 
+// ret stores a value v at pointer position PC+i.
 func (c *Computer) ret(i, v uint64) {
 	retAddr := c.Memory[c.PC+i]
 	c.Memory[retAddr] = v
 }
 
-func (c *Computer) add() uint64 {
+func (c *Computer) add() {
 	a := c.arg(1)
 	b := c.arg(2)
+
 	c.ret(3, a+b)
-	return instLength
+
+	c.PC += 4
 }
 
-func (c *Computer) mul() uint64 {
+func (c *Computer) mul() {
 	a := c.arg(1)
 	b := c.arg(2)
+
 	c.ret(3, a*b)
-	return instLength
+
+	c.PC += 4
 }
