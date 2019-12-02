@@ -1,9 +1,6 @@
 #!/bin/sh
 
-# The directory where this script is located.
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-
-SESSION_FILE="$SCRIPT_DIR/session-token"
+SESSION_FILE="session-token"
 
 if [ ! -f "$SESSION_FILE" ]
 then

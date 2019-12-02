@@ -1,18 +1,20 @@
 BIN_DIR = bin
 TOOLS_DIR = $(BIN_DIR)/tools
 
-DAYS = $(shell find -maxdepth 1 -name "day*" | sed 's:./::')
+DAYS = $(shell find -maxdepth 1 -name "day*" | grep -o '[0-9]\+$$')
 
 export PATH := $(shell pwd)/$(TOOLS_DIR):$(PATH)
 
 .PHONY: all
 all:
-	echo "run specific day with 'make dayXX'"
+	@echo "run specific day with 'make XX'"
 
 .PHONY: $(DAYS)
 $(DAYS):
-	go test ./$@
-	@if test -f ./$@/input; then go run ./$@ < ./$@/input; else go run ./$@; fi
+	./scripts/run.sh $@
+
+$(addsuffix /input,$(addprefix day,$(DAYS))):
+	./scripts/input.sh $(shell echo $@ | grep -o '[1-9]\+[0-9]*')
 
 .PHONY: tools
 tools:
@@ -24,6 +26,7 @@ tools:
 .PHONY: test
 test:
 	go test ./...
+	golint -set_exit_status ./...
 
 .PHONY: generate
 generate:
