@@ -92,8 +92,8 @@ func TestLinesIntersections(t *testing.T) {
 				{A: Point{6, 3}, B: Point{2, 3}},
 			},
 			points: []Point{
-				Point{3, 3},
-				Point{6, 5},
+				{3, 3},
+				{6, 5},
 			},
 		},
 	}

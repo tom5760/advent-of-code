@@ -20,13 +20,13 @@ func TestPart1(t *testing.T) {
 	}{
 		{
 			wires: []Wire{
-				Wire{
+				{
 					{Direction: DirectionRight, Length: 8},
 					{Direction: DirectionUp, Length: 5},
 					{Direction: DirectionLeft, Length: 5},
 					{Direction: DirectionDown, Length: 3},
 				},
-				Wire{
+				{
 					{Direction: DirectionUp, Length: 7},
 					{Direction: DirectionRight, Length: 6},
 					{Direction: DirectionDown, Length: 4},
@@ -37,7 +37,7 @@ func TestPart1(t *testing.T) {
 		},
 		{
 			wires: []Wire{
-				Wire{
+				{
 					{Direction: DirectionRight, Length: 75},
 					{Direction: DirectionDown, Length: 30},
 					{Direction: DirectionRight, Length: 83},
@@ -48,7 +48,7 @@ func TestPart1(t *testing.T) {
 					{Direction: DirectionUp, Length: 7},
 					{Direction: DirectionLeft, Length: 72},
 				},
-				Wire{
+				{
 					{Direction: DirectionUp, Length: 62},
 					{Direction: DirectionRight, Length: 66},
 					{Direction: DirectionUp, Length: 55},
@@ -63,7 +63,7 @@ func TestPart1(t *testing.T) {
 		},
 		{
 			wires: []Wire{
-				Wire{
+				{
 					{Direction: DirectionRight, Length: 98},
 					{Direction: DirectionUp, Length: 47},
 					{Direction: DirectionRight, Length: 26},
@@ -76,7 +76,7 @@ func TestPart1(t *testing.T) {
 					{Direction: DirectionUp, Length: 53},
 					{Direction: DirectionRight, Length: 51},
 				},
-				Wire{
+				{
 					{Direction: DirectionUp, Length: 98},
 					{Direction: DirectionRight, Length: 91},
 					{Direction: DirectionDown, Length: 20},
@@ -110,13 +110,13 @@ func TestPart2(t *testing.T) {
 	}{
 		{
 			wires: []Wire{
-				Wire{
+				{
 					{Direction: DirectionRight, Length: 8},
 					{Direction: DirectionUp, Length: 5},
 					{Direction: DirectionLeft, Length: 5},
 					{Direction: DirectionDown, Length: 3},
 				},
-				Wire{
+				{
 					{Direction: DirectionUp, Length: 7},
 					{Direction: DirectionRight, Length: 6},
 					{Direction: DirectionDown, Length: 4},
@@ -127,7 +127,7 @@ func TestPart2(t *testing.T) {
 		},
 		{
 			wires: []Wire{
-				Wire{
+				{
 					{Direction: DirectionRight, Length: 75},
 					{Direction: DirectionDown, Length: 30},
 					{Direction: DirectionRight, Length: 83},
@@ -138,7 +138,7 @@ func TestPart2(t *testing.T) {
 					{Direction: DirectionUp, Length: 7},
 					{Direction: DirectionLeft, Length: 72},
 				},
-				Wire{
+				{
 					{Direction: DirectionUp, Length: 62},
 					{Direction: DirectionRight, Length: 66},
 					{Direction: DirectionUp, Length: 55},
@@ -153,7 +153,7 @@ func TestPart2(t *testing.T) {
 		},
 		{
 			wires: []Wire{
-				Wire{
+				{
 					{Direction: DirectionRight, Length: 98},
 					{Direction: DirectionUp, Length: 47},
 					{Direction: DirectionRight, Length: 26},
@@ -166,7 +166,7 @@ func TestPart2(t *testing.T) {
 					{Direction: DirectionUp, Length: 53},
 					{Direction: DirectionRight, Length: 51},
 				},
-				Wire{
+				{
 					{Direction: DirectionUp, Length: 98},
 					{Direction: DirectionRight, Length: 91},
 					{Direction: DirectionDown, Length: 20},
