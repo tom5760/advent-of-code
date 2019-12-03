@@ -135,7 +135,6 @@ func LineSegmentIntersection(i, j LineSegment) (Point, bool) {
 	xMin := common.IntMax(ixMin, jxMin)
 	xMax := common.IntMin(ixMax, jxMax)
 
-	// Lines are horizontal, not intersecting.
 	if xMin > xMax {
 		return Point{}, false
 	}

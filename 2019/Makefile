@@ -11,6 +11,7 @@ all:
 
 .PHONY: $(DAYS)
 $(DAYS):
+	go test ./day$@
 	./scripts/run.sh $@
 
 $(addsuffix /input,$(addprefix day,$(DAYS))):
