@@ -129,50 +129,28 @@ func LinesIntersections(a, b Lines) []Point {
 //
 // Assumes the segments are axis-aligned.  Overlapping lines do not intersect.
 func LineSegmentIntersection(i, j LineSegment) (Point, bool) {
-	iHoriz := i.A.Y == i.B.Y
-	jHoriz := j.A.Y == j.B.Y
+	ixMin, ixMax := common.IntOrder(i.A.X, i.B.X)
+	jxMin, jxMax := common.IntOrder(j.A.X, j.B.X)
 
-	// If lines are horizontal, and on different Y's, no intersection
-	if iHoriz && jHoriz && i.A.Y != j.A.Y {
+	xMin := common.IntMax(ixMin, jxMin)
+	xMax := common.IntMin(ixMax, jxMax)
+
+	// Lines are horizontal, not intersecting.
+	if xMin > xMax {
 		return Point{}, false
 	}
 
-	// If lines are vertical, and on different X's, no intersection
-	if !iHoriz && !jHoriz && i.A.X != j.A.X {
+	iyMin, iyMax := common.IntOrder(i.A.Y, i.B.Y)
+	jyMin, jyMax := common.IntOrder(j.A.Y, j.B.Y)
+
+	yMin := common.IntMax(iyMin, jyMin)
+	yMax := common.IntMin(iyMax, jyMax)
+
+	if yMin > yMax {
 		return Point{}, false
 	}
 
-	// First line is horizontal, second line is not
-	if iHoriz && !jHoriz {
-		// If vertical line X is outside of horizontal line, no intersection.
-		if j.A.X < common.IntMin(i.A.X, i.B.X) || j.A.X > common.IntMax(i.A.X, i.B.X) {
-			return Point{}, false
-		}
-
-		// If horizontal line Y is outside of vertical line, no intersection.
-		if i.A.Y < common.IntMin(j.A.Y, j.B.Y) || i.A.Y > common.IntMax(j.A.Y, j.B.Y) {
-			return Point{}, false
-		}
-
-		return Point{X: j.A.X, Y: i.A.Y}, true
-	}
-
-	// Second line is horizontal, second line is not
-	if !iHoriz && jHoriz {
-		// If vertical line X is outside of horizontal line, no intersection.
-		if i.A.X < common.IntMin(j.A.X, j.B.X) || i.A.X > common.IntMax(j.A.X, j.B.X) {
-			return Point{}, false
-		}
-
-		// If horizontal line Y is outside of vertical line, no intersection.
-		if j.A.Y < common.IntMin(i.A.Y, i.B.Y) || j.A.Y > common.IntMax(i.A.Y, i.B.Y) {
-			return Point{}, false
-		}
-		return Point{X: i.A.X, Y: j.A.Y}, true
-	}
-
-	// Lines overlap
-	return Point{}, false
+	return Point{X: xMin, Y: yMin}, true
 }
 
 // ManhattanDistance computes the manhattan distance between two points.

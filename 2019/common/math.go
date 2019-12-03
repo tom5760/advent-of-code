@@ -20,6 +20,14 @@ func IntMax(x, y int) int {
 	return y
 }
 
+// IntOrder orders x, y from smaller to larger.
+func IntOrder(x, y int) (smaller, larger int) {
+	if x < y {
+		return x, y
+	}
+	return y, x
+}
+
 // IntAbs returns the absolute value of x.
 //
 // math.Min works on float64s, not ints.
