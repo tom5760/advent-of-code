@@ -8,6 +8,29 @@ import (
 	"strconv"
 )
 
+// ReadStringSlice scans r and parses it into a slice of strings.  If split is
+// nil, each number is separated by a newline.  Otherwise, the input is split
+// with that function.
+func ReadStringSlice(r io.Reader, split bufio.SplitFunc) ([]string, error) {
+	var inputs []string
+
+	scanner := bufio.NewScanner(r)
+
+	if split != nil {
+		scanner.Split(split)
+	}
+
+	for scanner.Scan() {
+		inputs = append(inputs, scanner.Text())
+	}
+
+	if err := scanner.Err(); err != nil {
+		return nil, fmt.Errorf("failed to scan input: %w", err)
+	}
+
+	return inputs, nil
+}
+
 // ReadUint64Slice scans r and parses it into a slice of uint64s.  If split is
 // nil, each number is separated by a newline.  Otherwise, the input is split
 // with that function.
