@@ -1,5 +1,9 @@
 package common
 
+import (
+	"math"
+)
+
 // IntMin returns the smaller of x or y.
 //
 // math.Min works on float64s, not ints.
@@ -36,4 +40,9 @@ func IntAbs(x int) int {
 		return -x
 	}
 	return x
+}
+
+// IntPow10 returns 10**n, the base-10 exponential of n.
+func IntPow10(n int) int {
+	return int(math.Pow10(n))
 }
