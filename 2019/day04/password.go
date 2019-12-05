@@ -10,6 +10,7 @@ const (
 	maxAdjacentDigits = 2
 )
 
+// Errors returned from password validation.
 var (
 	ErrInvalidLength      = errors.New("invalid length")
 	ErrMonotonicDigits    = errors.New("not monotonically increasing digits")

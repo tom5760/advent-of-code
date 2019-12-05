@@ -21,7 +21,7 @@ func run() int {
 	return 0
 }
 
-// Part 1 - How many different passwords within the range given in your puzzle
+// Part1 - How many different passwords within the range given in your puzzle
 // input meet these criteria?
 func Part1() int {
 	var count int
