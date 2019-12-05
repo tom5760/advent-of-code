@@ -7,14 +7,14 @@ import (
 // Computer implements an Intcode computer.
 type Computer struct {
 	Halted bool
-	PC     uint64
-	Memory []uint64
+	PC     int
+	Memory []int
 }
 
 // NewComputer initializes a computer with a copy of the given memory.
-func NewComputer(mem []uint64) *Computer {
+func NewComputer(mem []int) *Computer {
 	computer := &Computer{
-		Memory: make([]uint64, len(mem)),
+		Memory: make([]int, len(mem)),
 	}
 
 	copy(computer.Memory, mem)
@@ -53,13 +53,13 @@ func (c *Computer) opcode() opcode {
 }
 
 // arg dereferences a pointer at position PC+i.
-func (c *Computer) arg(i uint64) uint64 {
+func (c *Computer) arg(i int) int {
 	addr := c.Memory[c.PC+i]
 	return c.Memory[addr]
 }
 
 // ret stores a value v at pointer position PC+i.
-func (c *Computer) ret(i, v uint64) {
+func (c *Computer) ret(i, v int) {
 	retAddr := c.Memory[c.PC+i]
 	c.Memory[retAddr] = v
 }

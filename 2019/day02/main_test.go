@@ -49,14 +49,14 @@ func TestPart2(t *testing.T) {
 	}
 }
 
-func readInput() ([]uint64, error) {
+func readInput() ([]int, error) {
 	f, err := os.Open("input")
 	if err != nil {
 		return nil, fmt.Errorf("failed to open input file: %w", err)
 	}
 	defer f.Close()
 
-	memory, err := common.ReadUint64Slice(f, common.ScanCommas)
+	memory, err := common.ReadIntSlice(f, common.ScanCommas)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read input: %w", err)
 	}

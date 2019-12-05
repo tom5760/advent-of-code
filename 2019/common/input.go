@@ -31,6 +31,34 @@ func ReadStringSlice(r io.Reader, split bufio.SplitFunc) ([]string, error) {
 	return inputs, nil
 }
 
+// ReadIntSlice scans r and parses it into a slice of Ints.  If split is
+// nil, each number is separated by a newline.  Otherwise, the input is split
+// with that function.
+func ReadIntSlice(r io.Reader, split bufio.SplitFunc) ([]int, error) {
+	var inputs []int
+
+	scanner := bufio.NewScanner(r)
+
+	if split != nil {
+		scanner.Split(split)
+	}
+
+	for scanner.Scan() {
+		value, err := strconv.ParseInt(scanner.Text(), 10, 0)
+		if err != nil {
+			return nil, fmt.Errorf("failed to convert value to int: %w", err)
+		}
+
+		inputs = append(inputs, int(value))
+	}
+
+	if err := scanner.Err(); err != nil {
+		return nil, fmt.Errorf("failed to scan input: %w", err)
+	}
+
+	return inputs, nil
+}
+
 // ReadUint64Slice scans r and parses it into a slice of uint64s.  If split is
 // nil, each number is separated by a newline.  Otherwise, the input is split
 // with that function.

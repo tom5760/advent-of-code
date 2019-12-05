@@ -19,7 +19,7 @@ func main() {
 }
 
 func run() int {
-	memory, err := common.ReadUint64Slice(os.Stdin, common.ScanCommas)
+	memory, err := common.ReadIntSlice(os.Stdin, common.ScanCommas)
 	if err != nil {
 		log.Println("failed to read input:", err)
 		return 1
@@ -45,7 +45,7 @@ func run() int {
 }
 
 // RunComputer runs the given program with arguments.
-func RunComputer(memory []uint64, noun, verb uint64) (uint64, error) {
+func RunComputer(memory []int, noun, verb int) (int, error) {
 	computer := intcode.NewComputer(memory)
 
 	computer.Memory[1] = noun
@@ -61,15 +61,15 @@ func RunComputer(memory []uint64, noun, verb uint64) (uint64, error) {
 // Part1 - To do this, before running the program, replace position 1
 // with the value 12 and replace position 2 with the value 2. What value is
 // left at position 0 after the program halts?
-func Part1(memory []uint64) (uint64, error) {
+func Part1(memory []int) (int, error) {
 	return RunComputer(memory, 12, 2)
 }
 
 // Part2 - Find the input noun and verb that cause the program to produce
 // the output 19690720. What is 100 * noun + verb?
-func Part2(memory []uint64) (uint64, error) {
-	for noun := uint64(0); noun < maxValue; noun++ {
-		for verb := uint64(0); verb < maxValue; verb++ {
+func Part2(memory []int) (int, error) {
+	for noun := 0; noun < maxValue; noun++ {
+		for verb := 0; verb < maxValue; verb++ {
 			ret, err := RunComputer(memory, noun, verb)
 			if err != nil {
 				return 0, err
