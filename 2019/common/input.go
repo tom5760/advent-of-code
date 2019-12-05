@@ -95,9 +95,11 @@ func ScanCommas(data []byte, atEOF bool) (advance int, token []byte, err error) 
 	}
 
 	if i := bytes.IndexByte(data, ','); i >= 0 {
+		// We have a full comma-delimited token.
 		return i + 1, bytes.TrimSpace(data[0:i]), nil
 	}
 
+	// If we're at EOF, we have a final, non-terminated line. Return it.
 	if atEOF {
 		return len(data), bytes.TrimSpace(data), nil
 	}
