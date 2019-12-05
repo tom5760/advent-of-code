@@ -16,122 +16,118 @@ const (
 	opHalt opcode = 99
 )
 
-type inst func(c *Computer)
+var isa = map[opcode]func(c *Computer){
+	// Opcode 1 adds together numbers read from two positions and stores the
+	// result in a third position.
+	opAdd: func(c *Computer) {
+		a := c.arg(1)
+		b := c.arg(2)
 
-var isa = map[opcode]inst{
-	opAdd:    instAdd,
-	opMul:    instMul,
-	opInput:  instInput,
-	opOutput: instOutput,
-	opJmpT:   instJmpT,
-	opJmpF:   instJmpF,
-	opLT:     instLT,
-	opEQ:     instEQ,
-	opHalt:   instHalt,
-}
+		c.ret(3, a+b)
 
-func instAdd(c *Computer) {
-	a := c.arg(1)
-	b := c.arg(2)
+		c.PC += 4
+	},
 
-	c.ret(3, a+b)
+	// Opcode 2 works exactly like opcode 1, except it multiplies the two inputs
+	// instead of adding them.
+	opMul: func(c *Computer) {
+		a := c.arg(1)
+		b := c.arg(2)
 
-	c.PC += 4
-}
+		c.ret(3, a*b)
 
-func instMul(c *Computer) {
-	a := c.arg(1)
-	b := c.arg(2)
+		c.PC += 4
+	},
 
-	c.ret(3, a*b)
+	// Opcode 3 takes a single integer as input and saves it to the position
+	// given by its only parameter.
+	opInput: func(c *Computer) {
+		i := c.input()
 
-	c.PC += 4
-}
+		c.ret(1, i)
 
-func instInput(c *Computer) {
-	i := c.input()
+		c.PC += 2
+	},
 
-	c.ret(1, i)
+	// Opcode 4 outputs the value of its only parameter.
+	opOutput: func(c *Computer) {
+		a := c.arg(1)
 
-	c.PC += 2
-}
+		c.output(a)
 
-func instOutput(c *Computer) {
-	a := c.arg(1)
+		c.PC += 2
+	},
 
-	c.output(a)
+	// Opcode 5 is jump-if-true: if the first parameter is non-zero, it sets the
+	// instruction pointer to the value from the second parameter.  Otherwise, it
+	// does nothing.
+	opJmpT: func(c *Computer) {
+		a := c.arg(1)
+		b := c.arg(2)
 
-	c.PC += 2
-}
+		if a != 0 {
+			c.PC = b
+		} else {
+			c.PC += 3
+		}
+	},
 
-// instJmpT - Opcode 5 is jump-if-true: if the first parameter is non-zero, it
-// sets the instruction pointer to the value from the second parameter.
-// Otherwise, it does nothing.
-func instJmpT(c *Computer) {
-	a := c.arg(1)
-	b := c.arg(2)
+	// Opcode 6 is jump-if-false: if the first parameter is zero, it sets the
+	// instruction pointer to the value from the second parameter.  Otherwise, it
+	// does nothing.
+	opJmpF: func(c *Computer) {
+		a := c.arg(1)
+		b := c.arg(2)
 
-	if a != 0 {
-		c.PC = b
-	} else {
-		c.PC += 3
-	}
-}
+		if a == 0 {
+			c.PC = b
+		} else {
+			c.PC += 3
+		}
+	},
 
-// instJmpF - Opcode 6 is jump-if-false: if the first parameter is zero, it
-// sets the instruction pointer to the value from the second parameter.
-// Otherwise, it does nothing.
-func instJmpF(c *Computer) {
-	a := c.arg(1)
-	b := c.arg(2)
+	// Opcode 7 is less than: if the first parameter is less than the second
+	// parameter, it stores 1 in the position given by the third parameter.
+	// Otherwise, it stores 0.
+	opLT: func(c *Computer) {
+		a := c.arg(1)
+		b := c.arg(2)
 
-	if a == 0 {
-		c.PC = b
-	} else {
-		c.PC += 3
-	}
-}
+		var rv int
 
-// instLT - Opcode 7 is less than: if the first parameter is less than the
-// second parameter, it stores 1 in the position given by the third parameter.
-// Otherwise, it stores 0.
-func instLT(c *Computer) {
-	a := c.arg(1)
-	b := c.arg(2)
+		if a < b {
+			rv = 1
+		} else {
+			rv = 0
+		}
 
-	var rv int
+		c.ret(3, rv)
 
-	if a < b {
-		rv = 1
-	} else {
-		rv = 0
-	}
+		c.PC += 4
+	},
 
-	c.ret(3, rv)
+	// Opcode 8 is equals: if the first parameter is equal to the second
+	// parameter, it stores 1 in the position given by the third parameter.
+	// Otherwise, it stores 0.
+	opEQ: func(c *Computer) {
+		a := c.arg(1)
+		b := c.arg(2)
 
-	c.PC += 4
-}
+		var rv int
 
-// instEQ - Opcode 8 is equals: if the first parameter is equal to the second
-// parameter, it stores 1 in the position given by the third parameter.
-// Otherwise, it stores 0.
-func instEQ(c *Computer) {
-	a := c.arg(1)
-	b := c.arg(2)
+		if a == b {
+			rv = 1
+		} else {
+			rv = 0
+		}
 
-	var rv int
+		c.ret(3, rv)
 
-	if a == b {
-		rv = 1
-	} else {
-		rv = 0
-	}
+		c.PC += 4
+	},
 
-	c.ret(3, rv)
-
-	c.PC += 4
-}
-
-func instHalt(c *Computer) {
-	c.halt()
+	// Opcode 99 means that the program is finished and should immediately halt.
+	opHalt: func(c *Computer) {
+		c.halt()
+	},
 }
