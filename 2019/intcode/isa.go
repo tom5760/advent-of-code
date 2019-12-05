@@ -1,4 +1,4 @@
-package main
+package intcode
 
 //go:generate stringer -type=opcode -trimprefix=op
 type opcode uint64

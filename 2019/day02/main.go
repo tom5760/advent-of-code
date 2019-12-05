@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/tom5760/advent-of-code/2019/common"
+	"github.com/tom5760/advent-of-code/2019/intcode"
 )
 
 const (
@@ -45,7 +46,7 @@ func run() int {
 
 // RunComputer runs the given program with arguments.
 func RunComputer(memory []uint64, noun, verb uint64) (uint64, error) {
-	computer := NewComputer(memory)
+	computer := intcode.NewComputer(memory)
 
 	computer.Memory[1] = noun
 	computer.Memory[2] = verb
