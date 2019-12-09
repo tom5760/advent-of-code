@@ -172,14 +172,14 @@ func TestComputer(t *testing.T) {
 		t.Run(fmt.Sprintf("%v", i), func(t *testing.T) {
 			computer := NewComputer(tt.Start)
 
-			computer.Inputs = tt.Inputs
+			computer.Inputs(tt.Inputs...)
 
-			if err := computer.Run(); err != nil {
-				t.Errorf("computer failed to run: %v", err)
-			}
+			go computer.Run()
+
+			outputs := computer.Outputs()
 
 			if tt.Outputs != nil {
-				assert.Equal(t, tt.Outputs, computer.Outputs)
+				assert.Equal(t, tt.Outputs, outputs)
 			}
 
 			if tt.End != nil {

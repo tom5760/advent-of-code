@@ -22,7 +22,9 @@ type Computer struct {
 	Halted bool
 	PC     int
 
-	Memory, Inputs, Outputs []int
+	Memory []int
+
+	InputChan, OutputChan chan int
 
 	tw *tabwriter.Writer
 }
@@ -32,6 +34,9 @@ func NewComputer(mem []int) *Computer {
 	computer := &Computer{
 		Memory: make([]int, len(mem)),
 
+		InputChan:  make(chan int, 10),
+		OutputChan: make(chan int, 10),
+
 		tw: tabwriter.NewWriter(os.Stderr, 0, 2, 1, ' ', 0),
 	}
 
@@ -40,19 +45,36 @@ func NewComputer(mem []int) *Computer {
 	return computer
 }
 
-// Run executes instructions until a halt instruction is executed.
-func (c *Computer) Run() error {
-	for !c.Halted {
-		if err := c.Step(); err != nil {
-			return err
-		}
+// Inputs sets initial input for the computer.
+func (c *Computer) Inputs(i ...int) {
+	inputChan := make(chan int, len(i))
+	for _, i := range i {
+		inputChan <- i
 	}
 
-	return nil
+	c.InputChan = inputChan
+}
+
+// Outputs drains the output channel and returns a slice.
+func (c *Computer) Outputs() []int {
+	var outputs []int
+	for i := range c.OutputChan {
+		outputs = append(outputs, i)
+	}
+	return outputs
+}
+
+// Run executes instructions until a halt instruction is executed.
+func (c *Computer) Run() {
+	c.Halted = false
+
+	for !c.Halted {
+		c.Step()
+	}
 }
 
 // Step executes a single instruction at the current program counter.
-func (c *Computer) Step() (err error) {
+func (c *Computer) Step() {
 	defer func() {
 		if r := recover(); r != nil {
 			c.log("\n")
@@ -67,14 +89,12 @@ func (c *Computer) Step() (err error) {
 
 	inst, ok := isa[op]
 	if !ok {
-		return fmt.Errorf("unexepcted opcode: %d", op)
+		panic("unexpected opcode")
 	}
 
 	inst(c)
 
 	c.log("\n")
-
-	return nil
 }
 
 // opcode returns the opcode at PC
@@ -126,21 +146,14 @@ func (c *Computer) ret(i, v int) {
 	c.Memory[retAddr] = v
 }
 
-// input pops the first value off of the input slice.
+// input returns the next value from the input channel
 func (c *Computer) input() int {
-	if len(c.Inputs) == 0 {
-		panic("input empty")
-	}
-
-	i := c.Inputs[0]
-	c.Inputs = c.Inputs[1:]
-
-	return i
+	return <-c.InputChan
 }
 
-// output pushes a value onto the output slice.
+// output writes the next value to the output channel.
 func (c *Computer) output(i int) {
-	c.Outputs = append(c.Outputs, i)
+	c.OutputChan <- i
 }
 
 // halt sets the Halted flag to true, which will cause the Run function to
@@ -148,6 +161,7 @@ func (c *Computer) output(i int) {
 func (c *Computer) halt() {
 	c.Halted = true
 	c.tw.Flush()
+	close(c.OutputChan)
 }
 
 func (c *Computer) log(format string, a ...interface{}) {

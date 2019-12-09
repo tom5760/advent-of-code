@@ -40,26 +40,21 @@ func run() int {
 }
 
 // RunComputer runs the given program with inputs.
-func RunComputer(memory []int, input []int) ([]int, error) {
+func RunComputer(memory []int, input []int) []int {
 	computer := intcode.NewComputer(memory)
 
 	//computer.Log = true
-	computer.Inputs = input
+	computer.Inputs(input...)
 
-	if err := computer.Run(); err != nil {
-		return nil, fmt.Errorf("failed to run program: %w", err)
-	}
+	go computer.Run()
 
-	return computer.Outputs, nil
+	return computer.Outputs()
 }
 
 // Part1 - After providing 1 to the only input instruction and passing all the
 // tests, what diagnostic code does the program produce?
 func Part1(memory []int) (int, error) {
-	outputs, err := RunComputer(memory, []int{1})
-	if err != nil {
-		return 0, err
-	}
+	outputs := RunComputer(memory, []int{1})
 
 	if len(outputs) == 0 {
 		return 0, fmt.Errorf("produced no outputs")
@@ -76,10 +71,7 @@ func Part1(memory []int) (int, error) {
 
 // Part2 - What is the diagnostic code for system ID 5?
 func Part2(memory []int) (int, error) {
-	outputs, err := RunComputer(memory, []int{5})
-	if err != nil {
-		return 0, err
-	}
+	outputs := RunComputer(memory, []int{5})
 
 	if len(outputs) != 1 {
 		return 0, fmt.Errorf("unexpected number of outputs")

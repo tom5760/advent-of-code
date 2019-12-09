@@ -25,13 +25,7 @@ func run() int {
 		return 1
 	}
 
-	part1, err := Part1(memory)
-	if err != nil {
-		log.Println("failed to run part 1:", err)
-		return 1
-	}
-
-	log.Println("part 1:", part1)
+	log.Println("part 1:", Part1(memory))
 
 	part2, err := Part2(memory)
 	if err != nil {
@@ -45,23 +39,21 @@ func run() int {
 }
 
 // RunComputer runs the given program with arguments.
-func RunComputer(memory []int, noun, verb int) (int, error) {
+func RunComputer(memory []int, noun, verb int) int {
 	computer := intcode.NewComputer(memory)
 
 	computer.Memory[1] = noun
 	computer.Memory[2] = verb
 
-	if err := computer.Run(); err != nil {
-		return 0, fmt.Errorf("failed to run program: %w", err)
-	}
+	computer.Run()
 
-	return computer.Memory[0], nil
+	return computer.Memory[0]
 }
 
 // Part1 - To do this, before running the program, replace position 1
 // with the value 12 and replace position 2 with the value 2. What value is
 // left at position 0 after the program halts?
-func Part1(memory []int) (int, error) {
+func Part1(memory []int) int {
 	return RunComputer(memory, 12, 2)
 }
 
@@ -70,11 +62,7 @@ func Part1(memory []int) (int, error) {
 func Part2(memory []int) (int, error) {
 	for noun := 0; noun < maxValue; noun++ {
 		for verb := 0; verb < maxValue; verb++ {
-			ret, err := RunComputer(memory, noun, verb)
-			if err != nil {
-				return 0, err
-			}
-			if ret == targetOutput {
+			if RunComputer(memory, noun, verb) == targetOutput {
 				return 100*noun + verb, nil
 			}
 		}

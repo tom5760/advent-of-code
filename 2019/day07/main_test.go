@@ -9,8 +9,8 @@ import (
 )
 
 const (
-	expectedPart1 = 3760627
-	expectedPart2 = 7195
+	expectedPart1 = 38834
+	expectedPart2 = 69113332
 )
 
 func TestPart1(t *testing.T) {
@@ -20,7 +20,11 @@ func TestPart1(t *testing.T) {
 		return
 	}
 
-	actual := Part1(memory)
+	actual, err := Part1(memory)
+	if err != nil {
+		t.Fatalf("failed to run part 1: %v", err)
+		return
+	}
 
 	if expectedPart1 != actual {
 		t.Errorf("part 1 expected %v != %v", expectedPart1, actual)
