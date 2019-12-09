@@ -107,3 +107,20 @@ func ScanCommas(data []byte, atEOF bool) (advance int, token []byte, err error) 
 	// Request more data.
 	return 0, nil, nil
 }
+
+// ScanDigits scans individual digit bytes.
+func ScanDigits(data []byte, atEOF bool) (advance int, token []byte, err error) {
+	if atEOF && len(data) == 0 {
+		return 0, nil, nil
+	}
+
+	b := data[0]
+
+	if b >= '0' && b <= '9' {
+		// We have a digit
+		return 1, []byte{b}, nil
+	}
+
+	// Not a digit, skip it
+	return 1, nil, nil
+}
