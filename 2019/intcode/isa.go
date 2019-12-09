@@ -12,6 +12,7 @@ const (
 	opJmpF
 	opLT
 	opEQ
+	opRelBase
 
 	opHalt opcode = 99
 )
@@ -124,6 +125,14 @@ var isa = map[opcode]func(c *Computer){
 		c.ret(3, rv)
 
 		c.PC += 4
+	},
+
+	// Opcode 9 adjusts the relative base by the value of its only parameter. The
+	// relative base increases (or decreases, if the value is negative) by the
+	// value of the parameter.
+	opRelBase: func(c *Computer) {
+		c.RB += c.arg(1)
+		c.PC += 2
 	},
 
 	// Opcode 99 means that the program is finished and should immediately halt.

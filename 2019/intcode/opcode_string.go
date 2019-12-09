@@ -16,21 +16,22 @@ func _() {
 	_ = x[opJmpF-6]
 	_ = x[opLT-7]
 	_ = x[opEQ-8]
+	_ = x[opRelBase-9]
 	_ = x[opHalt-99]
 }
 
 const (
-	_opcode_name_0 = "AddMulInputOutputJmpTJmpFLTEQ"
+	_opcode_name_0 = "AddMulInputOutputJmpTJmpFLTEQRelBase"
 	_opcode_name_1 = "Halt"
 )
 
 var (
-	_opcode_index_0 = [...]uint8{0, 3, 6, 11, 17, 21, 25, 27, 29}
+	_opcode_index_0 = [...]uint8{0, 3, 6, 11, 17, 21, 25, 27, 29, 36}
 )
 
 func (i opcode) String() string {
 	switch {
-	case 1 <= i && i <= 8:
+	case 1 <= i && i <= 9:
 		i -= 1
 		return _opcode_name_0[_opcode_index_0[i]:_opcode_index_0[i+1]]
 	case i == 99:

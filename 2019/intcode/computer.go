@@ -11,8 +11,9 @@ import (
 type paramMode int
 
 const (
-	paramModePosition  paramMode = 0
-	paramModeImmediate paramMode = 1
+	paramModePosition paramMode = iota
+	paramModeImmediate
+	paramModeRelative
 )
 
 // Computer implements an Intcode computer.
@@ -20,7 +21,7 @@ type Computer struct {
 	Log bool
 
 	Halted bool
-	PC     int
+	PC, RB int
 
 	Memory []int
 
@@ -113,14 +114,37 @@ func (c *Computer) deref(i int) int {
 	addr := c.Memory[c.PC+i]
 
 	c.log("%#.2x ", addr)
-	c.log("(%.3d)\t", c.Memory[addr])
-	return c.Memory[addr]
+
+	return c.mem(addr)
+}
+
+// relative dereferences the argument value at PC+i in relative mode.
+func (c *Computer) relative(i int) int {
+	offset := c.Memory[c.PC+i]
+
+	c.log("%#.2x ", offset)
+
+	return c.mem(c.RB + offset)
 }
 
 // immediate returns the argument value at PC+i.
 func (c *Computer) immediate(i int) int {
-	c.log("(%.3d)\t", c.Memory[c.PC+i])
-	return c.Memory[c.PC+i]
+	return c.mem(c.PC + i)
+}
+
+// mem reads the memory value at 1
+func (c *Computer) mem(i int) int {
+	if i >= len(c.Memory) {
+		newMem := make([]int, len(c.Memory)*2)
+		copy(newMem, c.Memory)
+		c.Memory = newMem
+	}
+
+	v := c.Memory[i]
+
+	c.log("(%.3d)\t", v)
+
+	return v
 }
 
 // arg returns the argument value at PC+i.  Takes care to check the opcode for
@@ -133,15 +157,23 @@ func (c *Computer) arg(i int) int {
 	case paramModeImmediate:
 		return c.immediate(i)
 
-	default:
-		panic("unexpected param mode")
+	case paramModeRelative:
+		return c.relative(i)
 	}
+	panic("unexpected param mode")
 }
 
 // ret stores a value v at pointer position PC+i.  Assumes that return values
 // are always in position parameter mode.
 func (c *Computer) ret(i, v int) {
 	retAddr := c.Memory[c.PC+i]
+
+	if c.mode(i) == paramModeRelative {
+		retAddr = c.RB + retAddr
+	}
+
+	c.mem(retAddr)
+
 	c.log("= %#.2x (%.3d)\t", retAddr, v)
 	c.Memory[retAddr] = v
 }
