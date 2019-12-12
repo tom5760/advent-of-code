@@ -93,3 +93,17 @@ func (img *Image) Color(x, y int) Color {
 	}
 	return ColorBlack
 }
+
+// Set sets the color at x, y.
+func (img *Image) Set(x, y int, c Color) {
+	var layer []int
+
+	if len(img.Layers) == 0 {
+		layer = make([]int, img.Width*img.Height)
+		img.Layers = append(img.Layers, layer)
+	} else {
+		layer = img.Layers[0]
+	}
+
+	layer[y*img.Width+x] = int(c)
+}

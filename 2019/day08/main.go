@@ -15,7 +15,7 @@ const (
 	width  = 25
 	height = 6
 
-	outputFile = "part2-output.png"
+	outputFile = "day08-part2.png"
 )
 
 func main() {
@@ -39,6 +39,7 @@ func run() int {
 
 	if err := Part2(img); err != nil {
 		log.Println("failed to do part 2:", err)
+		return 1
 	}
 
 	log.Println("(part 2): written to", outputFile)
