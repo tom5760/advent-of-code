@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"io"
 	"math"
+	"sort"
 )
 
+// Object is an object in space.
 type Object byte
 
 const (
@@ -108,10 +110,10 @@ func IsVisible(field *Field, p1, p2 Point) bool {
 	return true
 }
 
-// VisibleAstroidCount finds the number of astroids visible from the given
+// VisibleAsteroids finds the number of asteroids visible from the given
 // point.
-func VisibleAstroidCount(field *Field, p1 Point) int {
-	count := 0
+func VisibleAsteroids(field *Field, p1 Point) []Point {
+	asteroids := []Point{}
 
 	for p2 := range field.Asteroids {
 		if p2 == p1 {
@@ -119,11 +121,11 @@ func VisibleAstroidCount(field *Field, p1 Point) int {
 		}
 
 		if IsVisible(field, p1, p2) {
-			count++
+			asteroids = append(asteroids, p2)
 		}
 	}
 
-	return count
+	return asteroids
 }
 
 // FindMonitoringStation finds the asteroids point that can see the most other
@@ -135,7 +137,7 @@ func FindMonitoringStation(field *Field) (Point, int) {
 	)
 
 	for p := range field.Asteroids {
-		count := VisibleAstroidCount(field, p)
+		count := len(VisibleAsteroids(field, p))
 		if count > maxCount {
 			maxCount = count
 			maxPoint = p
@@ -143,6 +145,49 @@ func FindMonitoringStation(field *Field) (Point, int) {
 	}
 
 	return maxPoint, maxCount
+}
+
+// sortAngle sorts asteroids clockwise around point.
+func sortAngle(asteroids []Point, c Point) {
+	sort.Slice(asteroids, func(i, j int) bool {
+		p1 := asteroids[i]
+		p2 := asteroids[j]
+
+		return getAngle(p2, c) > getAngle(p1, c)
+	})
+}
+
+func getAngle(p1, p2 Point) float64 {
+	angle := math.Atan2(float64(p2.Y-p1.Y), float64(p2.X-p1.X))
+
+	// Rotate so that 0 is up
+	angle -= (math.Pi / 2)
+
+	// Extend range from 0 -> Pi -> -Pi -> 0 to 0 -> 2Pi
+	if angle < 0 {
+		angle = (2 * math.Pi) + angle
+	}
+
+	return angle - (math.Pi / 2)
+}
+
+// Vaporize returns the order of asteroid points vaporized by the rotating
+// laser at c.
+func Vaporize(field *Field, c Point) []Point {
+	vaporized := make([]Point, 0, len(field.Asteroids))
+
+	for len(field.Asteroids) > 1 {
+		next := VisibleAsteroids(field, c)
+
+		sortAngle(next, c)
+
+		for _, p := range next {
+			vaporized = append(vaporized, p)
+			delete(field.Asteroids, p)
+		}
+	}
+
+	return vaporized
 }
 
 func crossproduct(p1, p2, p3 Point) int {
