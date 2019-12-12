@@ -8,6 +8,7 @@ import (
 	"os"
 
 	"github.com/tom5760/advent-of-code/2019/common"
+	"github.com/tom5760/advent-of-code/2019/sif"
 )
 
 const (
@@ -28,15 +29,15 @@ func run() int {
 		return 1
 	}
 
-	sif, err := ParseSIF(width, height, input)
+	img, err := sif.Decode(width, height, input)
 	if err != nil {
 		log.Println("failed to parse input:", err)
 		return 1
 	}
 
-	log.Println("(part 1):", Part1(sif))
+	log.Println("(part 1):", Part1(img))
 
-	if err := Part2(sif); err != nil {
+	if err := Part2(img); err != nil {
 		log.Println("failed to do part 2:", err)
 	}
 
@@ -47,11 +48,11 @@ func run() int {
 
 // Part1 - Find the layer that contains the fewest 0 digits. On that layer,
 // what is the number of 1 digits multiplied by the number of 2 digits?
-func Part1(sif *SIF) int {
+func Part1(img *sif.Image) int {
 	minZeroCount := math.MaxInt64
 	minZeroLayer := 0
 
-	for i, layer := range sif.Layers {
+	for i, layer := range img.Layers {
 		var zeroCount int
 		for _, px := range layer {
 			if px == 0 {
@@ -65,7 +66,7 @@ func Part1(sif *SIF) int {
 	}
 
 	var oneCount, twoCount int
-	for _, px := range sif.Layers[minZeroLayer] {
+	for _, px := range img.Layers[minZeroLayer] {
 		if px == 1 {
 			oneCount++
 		}
@@ -78,9 +79,7 @@ func Part1(sif *SIF) int {
 }
 
 // Part2 - What message is produced after decoding your image?
-func Part2(sif *SIF) error {
-	img := sif.ToImage()
-
+func Part2(img *sif.Image) error {
 	f, err := os.Create(outputFile)
 	if err != nil {
 		return fmt.Errorf("failed to create output file: %w", err)

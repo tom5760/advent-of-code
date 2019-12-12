@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/tom5760/advent-of-code/2019/common"
+	"github.com/tom5760/advent-of-code/2019/sif"
 )
 
 const (
@@ -46,7 +47,7 @@ func TestPart1(t *testing.T) {
 //  }
 //}
 
-func readInput() (*SIF, error) {
+func readInput() (*sif.Image, error) {
 	f, err := os.Open("input")
 	if err != nil {
 		return nil, fmt.Errorf("failed to open input file: %w", err)
@@ -58,7 +59,7 @@ func readInput() (*SIF, error) {
 		return nil, fmt.Errorf("failed to read input: %w", err)
 	}
 
-	img, err := ParseSIF(width, height, input)
+	img, err := sif.Decode(width, height, input)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse input: %w", err)
 	}
