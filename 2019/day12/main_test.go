@@ -10,43 +10,38 @@ import (
 
 const (
 	expectedPart1 = 10028
-
-//  expectedPart2 = 35734
+	expectedPart2 = 314610635824376
 )
 
 func TestPart1(t *testing.T) {
-	memory, err := readInput()
+	system, err := readInput()
 	if err != nil {
 		t.Fatalf("failed to read input: %v", err)
 		return
 	}
 
-	actual := Part1(memory)
+	actual := Part1(system)
 
 	if expectedPart1 != actual {
 		t.Errorf("part 1 expected %v != %v", expectedPart1, actual)
 	}
 }
 
-//func TestPart2(t *testing.T) {
-//  memory, err := readInput()
-//  if err != nil {
-//    t.Fatalf("failed to read input: %v", err)
-//    return
-//  }
+func TestPart2(t *testing.T) {
+	system, err := readInput()
+	if err != nil {
+		t.Fatalf("failed to read input: %v", err)
+		return
+	}
 
-//  actual, err := Part2(memory)
-//  if err != nil {
-//    t.Fatalf("failed to run part 2: %v", err)
-//    return
-//  }
+	actual := Part2(system)
 
-//  if expectedPart2 != actual {
-//    t.Errorf("part 2 expected %v != %v", expectedPart2, actual)
-//  }
-//}
+	if expectedPart2 != actual {
+		t.Errorf("part 2 expected %v != %v", expectedPart2, actual)
+	}
+}
 
-func readInput() (Bodies, error) {
+func readInput() (*System, error) {
 	f, err := os.Open("input")
 	if err != nil {
 		return nil, fmt.Errorf("failed to open input file: %w", err)
@@ -58,10 +53,10 @@ func readInput() (Bodies, error) {
 		return nil, fmt.Errorf("failed to read input: %w", err)
 	}
 
-	bodies, err := ParseBodies(lines)
+	system, err := ParseSystem(lines)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse input: %w", err)
 	}
 
-	return bodies, nil
+	return system, nil
 }

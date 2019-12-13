@@ -2,25 +2,25 @@ package main
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/tom5760/advent-of-code/2019/common"
 )
 
 func TestBodies_Step(t *testing.T) {
 	tests := []struct {
-		bodies Bodies
-		steps  []Bodies
+		input string
+		steps [][]Body
 	}{
 		{
-			bodies: Bodies{
-				{X: -1, Y: 0, Z: 2},
-				{X: 2, Y: -10, Z: -7},
-				{X: 4, Y: -8, Z: 8},
-				{X: 3, Y: 5, Z: -1},
-			},
-			steps: []Bodies{
-				Bodies{
+			input: `<x=-1, y=0, z=2>
+<x=2, y=-10, z=-7>
+<x=4, y=-8, z=8>
+<x=3, y=5, z=-1>`,
+			steps: [][]Body{
+				[]Body{
 					{
 						X: -1, Y: 0, Z: 2,
 						DX: 0, DY: 0, DZ: 0,
@@ -38,7 +38,7 @@ func TestBodies_Step(t *testing.T) {
 						DX: 0, DY: 0, DZ: 0,
 					},
 				},
-				Bodies{
+				[]Body{
 					{
 						X: 2, Y: -1, Z: 1,
 						DX: 3, DY: -1, DZ: -1,
@@ -62,9 +62,19 @@ func TestBodies_Step(t *testing.T) {
 
 	for i, tt := range tests {
 		t.Run(fmt.Sprintf("%v", i), func(t *testing.T) {
+			lines, err := common.ReadStringSlice(strings.NewReader(tt.input), nil)
+			if !assert.NoError(t, err) {
+				return
+			}
+
+			s, err := ParseSystem(lines)
+			if !assert.NoError(t, err) {
+				return
+			}
+
 			for _, step := range tt.steps {
-				assert.Equal(t, step, tt.bodies)
-				tt.bodies.Step()
+				assert.Equal(t, step, s.Bodies)
+				s.Step()
 			}
 		})
 	}

@@ -27,95 +27,79 @@ func (b *Body) Energy() int {
 	return b.Potential() * b.Kinetic()
 }
 
-// Bodies is a collection of bodies.
-type Bodies []Body
+// System is a collection of bodies.
+type System struct {
+	Bodies []Body
+	pairs  []pair
+}
 
-// ParseBodies parses line input into a set of bodies.
-func ParseBodies(lines []string) (Bodies, error) {
-	planets := make(Bodies, len(lines))
+type pair struct {
+	a, da, b, db *int
+}
+
+// ParseSystem parses line input into a System.
+func ParseSystem(lines []string) (*System, error) {
+	n := len(lines)
+	s := &System{
+		Bodies: make([]Body, n),
+		pairs:  make([]pair, 0, (n*(n-1))/2),
+	}
 
 	for i, line := range lines {
-		p := &planets[i]
+		p := &s.Bodies[i]
 		_, err := fmt.Sscanf(line, "<x=%d, y=%d, z=%d>", &p.X, &p.Y, &p.Z)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan line: %w", err)
 		}
 	}
 
-	return planets, nil
-}
-
-// Run runs the simulation for step steps.
-func (b Bodies) Run(steps int) {
-	for i := 0; i < steps; i++ {
-		b.Step()
+	for i := 0; i < len(s.Bodies); i++ {
+		a := &s.Bodies[i]
+		for j := i + 1; j < len(s.Bodies); j++ {
+			b := &s.Bodies[j]
+			s.pairs = append(s.pairs,
+				pair{&a.X, &a.DX, &b.X, &b.DX},
+				pair{&a.Y, &a.DY, &b.Y, &b.DY},
+				pair{&a.Z, &a.DZ, &b.Z, &b.DZ},
+			)
+		}
 	}
+
+	return s, nil
 }
 
-// Step simulates one step of a set of bodies.
-func (b Bodies) Step() {
-	b.velocity()
-	b.position()
+// Step simulates one step of a System.
+func (s System) Step() {
+	s.velocity()
+	s.position()
 }
 
 // Energy returns the total energy of the system.
-func (b Bodies) Energy() int {
+func (s System) Energy() int {
 	var sum int
-	for _, body := range b {
+	for _, body := range s.Bodies {
 		sum += body.Energy()
 	}
 	return sum
 }
 
-func (b Bodies) velocity() {
-	for _, pair := range b.pairwise() {
-		a := pair[0]
-		b := pair[1]
-		if a.X > b.X {
-			a.DX--
-			b.DX++
-		}
-		if a.X < b.X {
-			a.DX++
-			b.DX--
-		}
-		if a.Y > b.Y {
-			a.DY--
-			b.DY++
-		}
-		if a.Y < b.Y {
-			a.DY++
-			b.DY--
-		}
-		if a.Z > b.Z {
-			a.DZ--
-			b.DZ++
-		}
-		if a.Z < b.Z {
-			a.DZ++
-			b.DZ--
+func (s System) velocity() {
+	for _, p := range s.pairs {
+		if *p.a > *p.b {
+			*p.da--
+			*p.db++
+		} else if *p.a < *p.b {
+			*p.da++
+			*p.db--
 		}
 	}
 }
 
-func (b Bodies) position() {
-	for i := range b {
-		body := &b[i]
+func (s System) position() {
+	for i := range s.Bodies {
+		body := &s.Bodies[i]
 		body.X += body.DX
 		body.Y += body.DY
 		body.Z += body.DZ
 	}
-}
-
-func (b Bodies) pairwise() [][2]*Body {
-	var pairs [][2]*Body
-
-	for i := 0; i < len(b); i++ {
-		for j := i + 1; j < len(b); j++ {
-			pair := [2]*Body{&b[i], &b[j]}
-			pairs = append(pairs, pair)
-		}
-	}
-
-	return pairs
 }
