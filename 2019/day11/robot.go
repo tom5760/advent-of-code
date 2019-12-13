@@ -69,7 +69,7 @@ func (r *Robot) Clockwise() {
 	r.Facing = r.Facing.Clockwise()
 }
 
-// CouterClockwise rotates the robot counter-clockwise
+// CounterClockwise rotates the robot counter-clockwise
 func (r *Robot) CounterClockwise() {
 	r.Facing = r.Facing.CounterClockwise()
 }
