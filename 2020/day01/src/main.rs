@@ -1,3 +1,5 @@
+#![feature(test)]
+
 use std::error::Error;
 use std::io::{self, BufRead};
 use std::process;
@@ -60,13 +62,20 @@ fn part2(expenses: &Vec<i32>) -> Option<i32> {
 
 #[cfg(test)]
 mod tests {
+
+    extern crate test;
+
     use std::fs::File;
     use std::io::BufReader;
+
+    use test::Bencher;
+
+    use itertools::Itertools;
 
     use super::*;
 
     fn ex1() -> Vec<i32> {
-        return vec![ 1721, 979, 366, 299, 675, 1456 ];
+        return vec![1721, 979, 366, 299, 675, 1456];
     }
 
     fn input() -> Result<Vec<i32>, Box<dyn Error>> {
@@ -99,75 +108,86 @@ mod tests {
         let rs = part2(&input().unwrap()).unwrap();
         assert_eq!(rs, 223162626)
     }
+
+    #[bench]
+    fn bench_part1_loop(b: &mut Bencher) {
+        b.iter(|| part1(&input().unwrap()));
+    }
+
+    #[bench]
+    fn bench_part2_loop(b: &mut Bencher) {
+        b.iter(|| part2(&input().unwrap()));
+    }
+
+    // testing out using fancy iterators.
+
+    fn find_target_sum(expenses: &Vec<i32>, n: usize) -> Option<i32> {
+        Some(
+            expenses
+                .into_iter()
+                .combinations(n)
+                .find(|v| v.iter().map(|x| *x).sum::<i32>() == TARGET)?
+                .into_iter()
+                .product(),
+        )
+    }
+
+    fn part1_iter(expenses: &Vec<i32>) -> Option<i32> {
+        find_target_sum(expenses, 2)
+    }
+
+    fn part2_iter(expenses: &Vec<i32>) -> Option<i32> {
+        find_target_sum(expenses, 3)
+    }
+
+    #[test]
+    fn test_part1_iter() {
+        let rs = part1_iter(&input().unwrap()).unwrap();
+        assert_eq!(rs, 55776)
+    }
+
+    #[test]
+    fn test_part2_iter() {
+        let rs = part2_iter(&input().unwrap()).unwrap();
+        assert_eq!(rs, 223162626)
+    }
+
+    #[bench]
+    fn bench_part1_iter(b: &mut Bencher) {
+        b.iter(|| part1_iter(&input().unwrap()));
+    }
+
+    #[bench]
+    fn bench_part2_iter(b: &mut Bencher) {
+        b.iter(|| part2_iter(&input().unwrap()));
+    }
+
+    // testing out using a map
+
+    fn part1_map(expenses: &Vec<i32>) -> Option<i32> {
+        let mut map = std::collections::HashSet::new();
+
+        for x in expenses {
+            let diff = TARGET - x;
+
+            if map.contains(&diff) {
+                return Some(x * diff);
+            }
+
+            map.insert(*x);
+        }
+
+        return None;
+    }
+
+    #[test]
+    fn test_part1_map() {
+        let rs = part1_map(&input().unwrap()).unwrap();
+        assert_eq!(rs, 55776)
+    }
+
+    #[bench]
+    fn bench_part1_map(b: &mut Bencher) {
+        b.iter(|| part1_map(&input().unwrap()));
+    }
 }
-
-// #[cfg(test)]
-// mod tests {
-//     use super::*;
-//     use test::Bencher;
-
-//     use std::fs::File;
-//     use std::io::BufReader;
-
-//     use itertools::Itertools;
-
-//     fn get_input() -> Result<Vec<i32>, Box<dyn Error>> {
-//         let f = File::open("input")?;
-//         let mut bf = BufReader::new(f);
-
-//         return parse_input(&mut bf);
-//     }
-
-//     fn find_target_sum(expenses: &Vec<i32>, target: i32, n: usize) -> Option<i32> {
-//         Some(expenses
-//             .into_iter()
-//             .combinations(n)
-//             .find(|v| {
-//                 let sum: i32 = v.iter().map(|x| *x).sum();
-//                 sum == target
-//             })?
-//             .into_iter()
-//             .fold(1, |a, &b| a * b))
-//     }
-
-//     // fn find_target_sum(expenses: &Vec<i32>, target: i32, n: usize) -> Option<i32> {
-//     //     let x = expenses.iter().combinations(n).find(|v| {
-//     //         let sum: i32 = v.iter().sum();
-//     //         sum == target
-//     //     })?;
-
-//     //     Some(itertools::fold(x, 1i32, |a, b| a * b))
-//     // }
-
-//     fn part1_iter(expenses: &Vec<i32>, target: i32) -> Option<i32> {
-//         find_target_sum(expenses, target, 2)
-//     }
-
-//     fn part2_iter(expenses: &Vec<i32>, target: i32) -> Option<i32> {
-//         find_target_sum(expenses, target, 3)
-//     }
-
-//     #[bench]
-//     fn bench_part1_iter(b: &mut Bencher) {
-//         let expenses = get_input().unwrap();
-//         b.iter(|| part1_iter(&expenses, TARGET));
-//     }
-
-//     #[bench]
-//     fn bench_part1_loop(b: &mut Bencher) {
-//         let expenses = get_input().unwrap();
-//         b.iter(|| part1(&expenses, TARGET));
-//     }
-
-//     #[bench]
-//     fn bench_part2_iter(b: &mut Bencher) {
-//         let expenses = get_input().unwrap();
-//         b.iter(|| part2_iter(&expenses, TARGET));
-//     }
-
-//     #[bench]
-//     fn bench_part2_loop(b: &mut Bencher) {
-//         let expenses = get_input().unwrap();
-//         b.iter(|| part2(&expenses, TARGET));
-//     }
-// }
