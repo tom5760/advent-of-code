@@ -79,7 +79,7 @@ mod tests {
     }
 
     fn input() -> Result<Vec<i32>, Box<dyn Error>> {
-        let f = File::open("input")?;
+        let f = File::open("inputs/day01")?;
         let mut bf = BufReader::new(f);
 
         return parse_input(&mut bf);

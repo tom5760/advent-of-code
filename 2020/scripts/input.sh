@@ -32,4 +32,4 @@ curl \
   --fail \
   --silent \
   --cookie "session=$SESSION" \
-  "https://adventofcode.com/2020/day/$DAY/input" > "$OUTFILE/input"
+  "https://adventofcode.com/2020/day/$DAY/input" > "inputs/$OUTFILE"

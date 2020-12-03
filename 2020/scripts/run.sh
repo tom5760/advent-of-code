@@ -1,11 +1,11 @@
 #!/bin/sh
 
-INPUT="day$1/input$2"
+INPUT="inputs/day$1$2"
 
 if test -f $INPUT
 then
-  cargo run --release --package "day$1" < "day$1/input$2"
+  cargo run --release --bin "day$1" < "$INPUT"
 else
   echo no input file
-  cargo run --release --package "day$1"
+  cargo run --release --bin "day$1"
 fi
