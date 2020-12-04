@@ -1,13 +1,14 @@
 #![feature(test)]
 
-use std::error::Error;
-use std::io::{self, BufRead};
 use std::process;
+
+#[path = "../input.rs"]
+mod input;
 
 const TARGET: i32 = 2020;
 
 fn main() {
-    let expenses = parse_input(&mut io::stdin().lock()).unwrap_or_else(|err| {
+    let expenses = input::stdin_parse().unwrap_or_else(|err| {
         println!("failed to parse input: {}", err);
         process::exit(1);
     });
@@ -25,13 +26,6 @@ fn main() {
     });
 
     println!("PART 2: {}", x,);
-}
-
-fn parse_input(reader: &mut dyn BufRead) -> Result<Vec<i32>, Box<dyn Error>> {
-    return reader
-        .lines()
-        .map(|line| Ok(line?.parse::<i32>()?))
-        .collect();
 }
 
 fn part1(expenses: &Vec<i32>) -> Option<i32> {
@@ -67,6 +61,7 @@ mod tests {
 
     use std::fs::File;
     use std::io::BufReader;
+use std::error::Error;
 
     use test::Bencher;
 
@@ -82,7 +77,7 @@ mod tests {
         let f = File::open("inputs/day01")?;
         let mut bf = BufReader::new(f);
 
-        return parse_input(&mut bf);
+        return input::parse(&mut bf);
     }
 
     #[test]
