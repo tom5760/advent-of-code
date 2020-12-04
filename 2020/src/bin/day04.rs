@@ -98,13 +98,13 @@ impl Record {
 
         if let Some(ecl) = &self.ecl {
             match ecl.as_str() {
-                "amb" => {},
-                "blu" => {},
-                "brn" => {},
-                "gry" => {},
-                "grn" => {},
-                "hzl" => {},
-                "oth" => {},
+                "amb" => {}
+                "blu" => {}
+                "brn" => {}
+                "gry" => {}
+                "grn" => {}
+                "hzl" => {}
+                "oth" => {}
                 _ => return false,
             }
         }
