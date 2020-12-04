@@ -77,7 +77,10 @@ use std::error::Error;
         let f = File::open("inputs/day01")?;
         let mut bf = BufReader::new(f);
 
-        return input::parse(&mut bf);
+        match input::parse(&mut bf).map_err(|err| Box::new(err)) {
+            Ok(v) => Ok(v),
+            Err(err) => Err(err),
+        }
     }
 
     #[test]
