@@ -1,32 +1,34 @@
 use std::error::Error;
+use std::fmt::Debug;
 use std::io::{self, BufRead};
 use std::str::FromStr;
 
 use thiserror::Error;
 
 #[derive(Error, Debug)]
-pub enum InputError {
+pub enum InputError<T: FromStr + Debug>
+where
+    T::Err: Error,
+    T::Err: 'static,
+{
     #[error{"i/o error on line {line:?}: {source}"}]
     IO { source: io::Error, line: usize },
 
     #[error{"parse error on line {line:?}: {source}"}]
-    Parse { source: Box<dyn Error>, line: usize },
+    Parse { source: T::Err, line: usize },
 }
 
-pub fn stdin_parse<T: FromStr>() -> Result<Vec<T>, InputError>
+pub fn stdin_parse<T: FromStr + Debug>() -> Result<Vec<T>, InputError<T>>
 where
-    T: FromStr,
-    <T as FromStr>::Err: Error,
-    <T as FromStr>::Err: 'static,
+    T::Err: Error,
+    T::Err: 'static,
 {
     parse(&mut io::stdin().lock())
 }
 
-pub fn parse<T>(reader: &mut dyn BufRead) -> Result<Vec<T>, InputError>
+pub fn parse<T: FromStr + Debug>(reader: &mut dyn BufRead) -> Result<Vec<T>, InputError<T>>
 where
-    T: FromStr,
-    <T as FromStr>::Err: Error,
-    <T as FromStr>::Err: 'static,
+    T::Err: Error,
 {
     reader
         .lines()
@@ -36,7 +38,7 @@ where
                 Ok(value) => return Ok(value),
                 Err(err) => {
                     return Err(InputError::Parse {
-                        source: Box::new(err),
+                        source: err,
                         line: i,
                     })
                 }

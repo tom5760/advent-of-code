@@ -59,9 +59,9 @@ mod tests {
 
     extern crate test;
 
+    use std::error::Error;
     use std::fs::File;
     use std::io::BufReader;
-use std::error::Error;
 
     use test::Bencher;
 

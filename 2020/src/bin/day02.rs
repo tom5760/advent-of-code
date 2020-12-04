@@ -27,6 +27,7 @@ enum ParseError {
     Regex(),
 }
 
+#[derive(Debug)]
 struct Policy {
     low: usize,
     high: usize,
@@ -70,32 +71,22 @@ impl FromStr for Policy {
                     .unwrap();
         }
 
+        macro_rules! named_match {
+            ($c:expr, $n:expr) => {
+                $c.name($n).ok_or(ParseError::Regex())?.as_str();
+            };
+        }
+
         let captures = match RE.captures(line) {
             Some(captures) => captures,
             None => return Err(ParseError::Regex()),
         };
 
         Ok(Policy {
-            low: captures
-                .name("low")
-                .ok_or(ParseError::Regex())?
-                .as_str()
-                .parse()?,
-            high: captures
-                .name("high")
-                .ok_or(ParseError::Regex())?
-                .as_str()
-                .parse()?,
-            letter: captures
-                .name("letter")
-                .ok_or(ParseError::Regex())?
-                .as_str()
-                .parse()?,
-            password: captures
-                .name("password")
-                .ok_or(ParseError::Regex())?
-                .as_str()
-                .to_string(),
+            low: named_match!(captures, "low").parse()?,
+            high: named_match!(captures, "high").parse()?,
+            letter: named_match!(captures, "letter").parse()?,
+            password: named_match!(captures, "password").to_string(),
         })
     }
 }
