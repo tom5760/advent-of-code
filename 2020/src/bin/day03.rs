@@ -4,9 +4,6 @@ use std::process;
 
 use thiserror::Error;
 
-// #[path = "../input.rs"]
-// mod input;
-
 #[derive(Debug, PartialEq, Eq)]
 enum Tile {
     Empty { x: usize, y: usize },
@@ -74,23 +71,6 @@ impl Display for Grid {
 #[error{"parse error"}]
 struct ParseError {}
 
-fn main() {
-    let grid = parse_input(&mut io::stdin().lock()).unwrap_or_else(|err| {
-        println!("failed to parse input: {}", err);
-        process::exit(1);
-    });
-
-    println!("PART 1: {}", grid.count(3, 1));
-    println!(
-        "PART 2: {}",
-        grid.count(1, 1)
-            * grid.count(3, 1)
-            * grid.count(5, 1)
-            * grid.count(7, 1)
-            * grid.count(1, 2)
-    );
-}
-
 fn parse_input(reader: &mut dyn Read) -> Result<Grid, ParseError> {
     let mut grid = Grid {
         width: 0,
@@ -127,4 +107,21 @@ fn parse_input(reader: &mut dyn Read) -> Result<Grid, ParseError> {
     grid.height = y;
 
     Ok(grid)
+}
+
+fn main() {
+    let grid = parse_input(&mut io::stdin().lock()).unwrap_or_else(|err| {
+        println!("failed to parse input: {}", err);
+        process::exit(1);
+    });
+
+    println!("PART 1: {}", grid.count(3, 1));
+    println!(
+        "PART 2: {}",
+        grid.count(1, 1)
+            * grid.count(3, 1)
+            * grid.count(5, 1)
+            * grid.count(7, 1)
+            * grid.count(1, 2)
+    );
 }
