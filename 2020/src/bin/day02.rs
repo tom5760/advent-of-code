@@ -53,11 +53,16 @@ impl Policy {
 
     fn valid2(&self) -> bool {
         let pw: Vec<char> = self.password.chars().collect();
-        let a = pw[self.low - 1];
-        let b = pw[self.high - 1];
+        let a = pw.get(self.low - 1);
+        let b = pw.get(self.high - 1);
 
-        return ((a == self.letter) || (b == self.letter))
-            && !((a == self.letter) & (b == self.letter));
+        match (a, b) {
+            (Some(&a), Some(&b)) => {
+                ((a == self.letter) || (b == self.letter))
+                    && !((a == self.letter) & (b == self.letter))
+            }
+            _ => false,
+        }
     }
 }
 
