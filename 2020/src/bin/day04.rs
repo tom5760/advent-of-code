@@ -156,6 +156,8 @@ fn parse_input(reader: &mut dyn BufRead) -> Result<Vec<Record>, ParseError> {
         }
     }
 
+    records.push(cur);
+
     Ok(records)
 }
 
