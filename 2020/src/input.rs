@@ -3,6 +3,8 @@ use std::fmt::Debug;
 use std::io::{self, BufRead};
 use std::str::FromStr;
 
+use anyhow::Result;
+
 use thiserror::Error;
 
 #[derive(Error, Debug)]
