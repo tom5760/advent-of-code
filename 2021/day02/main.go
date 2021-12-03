@@ -6,6 +6,8 @@ import (
 	"io"
 	"log"
 	"os"
+
+	"github.com/tom5760/advent-of-code/2021/input"
 )
 
 func main() {
@@ -30,28 +32,12 @@ func run() error {
 // It seems like the submarine can take a series of commands like forward 1,
 // down 2, or up 3:
 //
-//
 // The submarine seems to already have a planned course (your puzzle input).
 // You should probably figure out where it's going.
 func ParseInput(r io.Reader) ([]Command, error) {
-	var cmds []Command
-
-	scanner := bufio.NewScanner(r)
-
-	for scanner.Scan() {
-		cmd, err := ParseCommand(scanner.Text())
-		if err != nil {
-			return nil, fmt.Errorf("failed to parse command: %w", err)
-		}
-
-		cmds = append(cmds, cmd)
-	}
-
-	if err := scanner.Err(); err != nil {
-		return nil, fmt.Errorf("failed to scan input: %w", err)
-	}
-
-	return cmds, nil
+	return input.Parser[Command]{ParseFunc: func(scanner *bufio.Scanner) (Command, error) {
+		return ParseCommand(scanner.Text())
+	}}.Slice(r)
 }
 
 // Calculate the horizontal position and depth you would have after following

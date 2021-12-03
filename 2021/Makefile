@@ -8,11 +8,11 @@ all:
 
 .PHONY: $(DAYS)
 $(DAYS):
-	go test ./day$@
-	go run ./day$@ < day$@/input
+	gotip test ./day$@
+	gotip run ./day$@ < day$@/input
 
 day%: day%/input
 
 day%/input:
 	mkdir -p $(shell dirname $@)
-	go run ./dl -day $*
+	gotip run ./dl -day $*

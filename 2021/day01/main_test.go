@@ -11,12 +11,12 @@ func TestParseInput(t *testing.T) {
 
 	tests := []struct {
 		name     string
-		expected []int
+		expected []int64
 		input    string
 	}{
 		{
 			name: "example",
-			expected: []int{
+			expected: []int64{
 				199,
 				200,
 				208,
@@ -64,13 +64,13 @@ func TestPart1(t *testing.T) {
 
 	tests := []struct {
 		name     string
-		expected int
-		input    []int
+		expected int64
+		input    []int64
 	}{
 		{
 			name:     "example",
 			expected: 7,
-			input: []int{
+			input: []int64{
 				199,
 				200,
 				208,
@@ -105,13 +105,13 @@ func TestPart2(t *testing.T) {
 
 	tests := []struct {
 		name     string
-		expected int
-		input    []int
+		expected int64
+		input    []int64
 	}{
 		{
 			name:     "example",
 			expected: 5,
-			input: []int{
+			input: []int64{
 				199,
 				200,
 				208,

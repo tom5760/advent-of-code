@@ -1,12 +1,12 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"io"
 	"log"
 	"os"
-	"strconv"
+
+	"github.com/tom5760/advent-of-code/2021/input"
 )
 
 func main() {
@@ -33,34 +33,19 @@ func run() error {
 // sweep report (your puzzle input) appears: each line is a measurement of the
 // sea floor depth as the sweep looks further and further away from the
 // submarine.
-func ParseInput(r io.Reader) ([]int, error) {
-	var depths []int
-
-	scanner := bufio.NewScanner(r)
-
-	for scanner.Scan() {
-		n, err := strconv.ParseInt(scanner.Text(), 10, 0)
-		if err != nil {
-			return nil, fmt.Errorf("failed to parse '%v': %w", scanner.Text(), err)
-		}
-
-		depths = append(depths, int(n))
-	}
-
-	if err := scanner.Err(); err != nil {
-		return nil, fmt.Errorf("failed to scan input: %w", err)
-	}
-
-	return depths, nil
+func ParseInput(r io.Reader) ([]int64, error) {
+	return input.Parser[int64]{
+		ParseFunc: input.Int(10, 64),
+	}.Slice(r)
 }
 
 // How many measurements are larger than the previous measurement?
-func Part1(depths []int) int {
+func Part1(depths []int64) int64 {
 	if len(depths) < 2 {
 		return 0
 	}
 
-	var count int
+	var count int64
 
 	for i := range depths[1:] {
 		if depths[i+1] > depths[i] {
@@ -73,12 +58,12 @@ func Part1(depths []int) int {
 
 // Consider sums of a three-measurement sliding window. How many sums are
 // larger than the previous sum?
-func Part2(depths []int) int {
+func Part2(depths []int64) int64 {
 	if len(depths) < 4 {
 		return 0
 	}
 
-	var count int
+	var count int64
 
 	for i := range depths[3:] {
 		a := depths[i] + depths[i+1] + depths[i+2]
