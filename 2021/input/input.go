@@ -48,6 +48,12 @@ func Int(base, bitSize int) func(*bufio.Scanner) (int64, error) {
 	}
 }
 
+func Uint(base, bitSize int) func(*bufio.Scanner) (uint64, error) {
+	return func(scanner *bufio.Scanner) (uint64, error) {
+		return strconv.ParseUint(scanner.Text(), base, bitSize)
+	}
+}
+
 func String(scanner *bufio.Scanner) (string, error) {
 	return scanner.Text(), nil
 }
