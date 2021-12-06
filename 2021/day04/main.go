@@ -45,14 +45,14 @@ func ParseInput(r io.Reader) (*Game, error) {
 
 	scanner := bufio.NewScanner(r)
 
-	scanner.Split(scanTwoNewlines)
+	scanner.Split(input.ScanIndex([]byte{'\n', '\n'}))
 
 	// Grab numbers
 	scanner.Scan()
 
 	game.Numbers, err = input.
 		Parser[int64]{
-		SplitFunc: scanComma,
+		SplitFunc: input.ScanIndexByte(','),
 		ParseFunc: input.Int(10, 64),
 	}.Slice(bytes.NewReader(scanner.Bytes()))
 
@@ -83,54 +83,6 @@ func ParseInput(r io.Reader) (*Game, error) {
 	}
 
 	return &game, nil
-}
-
-func scanComma(data []byte, atEOF bool) (advance int, token []byte, err error) {
-	if atEOF && len(data) == 0 {
-		return 0, nil, nil
-	}
-
-	if i := bytes.IndexByte(data, ','); i >= 0 {
-		return i + 1, dropCR(data[0:i]), nil
-	}
-
-	// If we're at EOF, we have a final, non-terminated line. Return it.
-	if atEOF {
-		return len(data), dropCR(data), nil
-	}
-
-	// Request more data.
-	return 0, nil, nil
-}
-
-// Split on two consecutive newlines.
-// Modified from bufio.ScanLines:
-// https://cs.opensource.google/go/go/+/refs/tags/go1.17.3:src/bufio/scan.go;drc=93200b98c75500b80a2bf7cc31c2a72deff2741c;l=345-365
-func scanTwoNewlines(data []byte, atEOF bool) (advance int, token []byte, err error) {
-	if atEOF && len(data) == 0 {
-		return 0, nil, nil
-	}
-
-	if i := bytes.Index(data, []byte{'\n', '\n'}); i >= 0 {
-		// We have a block terminated by two newlines.
-		return i + 2, dropCR(data[0:i]), nil
-	}
-
-	// If we're at EOF, we have a final, non-terminated line. Return it.
-	if atEOF {
-		return len(data), dropCR(data), nil
-	}
-
-	// Request more data.
-	return 0, nil, nil
-}
-
-// dropCR drops a terminal \r from the data.
-func dropCR(data []byte) []byte {
-	if len(data) > 0 && data[len(data)-1] == '\r' {
-		return data[0 : len(data)-1]
-	}
-	return data
 }
 
 // The score of the winning board can now be calculated. Start by finding the
