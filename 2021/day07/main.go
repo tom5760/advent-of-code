@@ -126,9 +126,5 @@ func abs(x int64) int64 {
 }
 
 func rangeSum(x uint64) uint64 {
-	var sum uint64
-	for i := uint64(1); i <= x; i++ {
-		sum += i
-	}
-	return sum
+	return (x * (x + 1)) / 2
 }
