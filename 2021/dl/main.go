@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 
 	"github.com/peterbourgon/ff/v3"
 )
@@ -27,7 +28,7 @@ func run() error {
 	fs := flag.NewFlagSet("input", flag.ExitOnError)
 
 	token := fs.String("token", "", "Session token from adventofcode.com.  Get from cookies.")
-	day := fs.Uint("day", 0, "Day to fetch input from.")
+	dayStr := fs.String("day", "", "Day to fetch input from.")
 
 	if err := ff.Parse(fs, os.Args[1:], ff.WithEnvVarPrefix("AOC")); err != nil {
 		return fmt.Errorf("failed to parse token: %w", err)
@@ -37,11 +38,16 @@ func run() error {
 		return fmt.Errorf("session token required")
 	}
 
-	if *day == 0 {
+	if *dayStr == "" {
 		return fmt.Errorf("puzzle day required")
 	}
 
-	outPath := fmt.Sprintf("day%.2d/input", *day)
+	day, err := strconv.ParseInt(*dayStr, 10, 64)
+	if err != nil {
+		return fmt.Errorf("failed to parse day: %w", err)
+	}
+
+	outPath := fmt.Sprintf("day%.2d/input", day)
 	outf, err := os.Create(outPath)
 	if err != nil {
 		return fmt.Errorf("failed to create output file: %w", err)
@@ -49,7 +55,7 @@ func run() error {
 
 	defer outf.Close()
 
-	inputURL := fmt.Sprintf(pathInput, *day)
+	inputURL := fmt.Sprintf(pathInput, day)
 	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, inputURL, nil)
 	if err != nil {
 		return fmt.Errorf("failed to create request: %w", err)
