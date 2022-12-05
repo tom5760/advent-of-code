@@ -6,65 +6,40 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"sync"
 )
 
-type Parser[T any] struct {
-	ParseFunc func(inChan <-chan []byte, outChan chan<- T) error
-	SplitFunc bufio.SplitFunc
-}
+type (
+	ParseFunc[T any] func(input []byte, outChan chan<- T) error
+
+	Parser[T any] struct {
+		TokenFunc bufio.SplitFunc
+		ParseFunc ParseFunc[T]
+	}
+)
 
 func (p *Parser[T]) ReadSlice(r io.Reader) ([]T, error) {
 	scanner := bufio.NewScanner(r)
 
-	if p.SplitFunc != nil {
-		scanner.Split(p.SplitFunc)
+	if p.TokenFunc != nil {
+		scanner.Split(p.TokenFunc)
 	}
 
-	inChan := make(chan []byte, 2)
-	outChan := make(chan T, 2)
-	parseChan := make(chan struct{}) // signals parse failure
-
-	var wg sync.WaitGroup
-	wg.Add(3)
-
-	var parseErr error
-	go func() {
-		defer wg.Done()
-		defer close(parseChan)
-
-		parseErr = p.ParseFunc(inChan, outChan)
-	}()
-
-	go func() {
-		defer wg.Done()
-		defer close(inChan)
-
-		for scanner.Scan() {
-			select {
-			case inChan <- bytes.TrimSpace(scanner.Bytes()):
-			case <-parseChan:
-				return
-			}
-		}
-	}()
-
 	var result []T
-	go func() {
-		defer wg.Done()
+	outChan := make(chan T, 1)
 
-		for r := range outChan {
-			result = append(result, r)
+	for scanner.Scan() {
+		input := bytes.TrimSpace(scanner.Bytes())
+		p.ParseFunc(input, outChan)
+
+		select {
+		case v := <-outChan:
+			result = append(result, v)
+		default:
 		}
-	}()
-
-	wg.Wait()
+	}
 
 	if err := scanner.Err(); err != nil {
 		return result, fmt.Errorf("failed to scan: %w", err)
-	}
-	if parseErr != nil {
-		return result, fmt.Errorf("failed to parse: %w", parseErr)
 	}
 
 	return result, nil

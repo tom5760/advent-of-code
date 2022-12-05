@@ -19,29 +19,7 @@ func main() {
 
 func run() error {
 	parser := input.Parser[uint64]{
-		ParseFunc: func(inChan <-chan []byte, outChan chan<- uint64) error {
-			defer close(outChan)
-
-			var elf uint64
-
-			for line := range inChan {
-				if len(line) == 0 {
-					outChan <- elf
-					elf = 0
-
-					continue
-				}
-
-				calories, err := strconv.ParseUint(string(line), 10, 0)
-				if err != nil {
-					return fmt.Errorf("failed to parse input: %w", err)
-				}
-
-				elf += calories
-			}
-
-			return nil
-		},
+		ParseFunc: Parse(),
 	}
 
 	elves, err := parser.ReadFileSlice("./day01/input")
@@ -55,4 +33,26 @@ func run() error {
 	log.Println("PART 2:", elves[0]+elves[1]+elves[2])
 
 	return nil
+}
+
+func Parse() input.ParseFunc[uint64] {
+	var elf uint64
+
+	return func(input []byte, outChan chan<- uint64) error {
+		if len(input) == 0 {
+			outChan <- elf
+			elf = 0
+
+			return nil
+		}
+
+		calories, err := strconv.ParseUint(string(input), 10, 0)
+		if err != nil {
+			return fmt.Errorf("failed to parse input: %w", err)
+		}
+
+		elf += calories
+
+		return nil
+	}
 }

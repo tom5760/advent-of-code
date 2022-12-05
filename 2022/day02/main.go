@@ -80,28 +80,8 @@ func main() {
 
 func run() error {
 	parser := input.Parser[Instruction]{
-		SplitFunc: bufio.ScanWords,
-		ParseFunc: func(inChan <-chan []byte, outChan chan<- Instruction) error {
-			defer close(outChan)
-
-			for opponentIn := range inChan {
-				if len(opponentIn) != 1 {
-					return fmt.Errorf("invalid opponent move")
-				}
-
-				responseIn := <-inChan
-				if len(responseIn) != 1 {
-					return fmt.Errorf("invalid response move")
-				}
-
-				outChan <- Instruction{
-					Opponent: opponentIn[0],
-					Response: responseIn[0],
-				}
-			}
-
-			return nil
-		},
+		TokenFunc: bufio.ScanWords,
+		ParseFunc: Parse(),
 	}
 
 	instructions, err := parser.ReadFileSlice("./day02/input")
@@ -113,6 +93,37 @@ func run() error {
 	Part2(instructions)
 
 	return nil
+}
+
+func Parse() input.ParseFunc[Instruction] {
+	var opponentIn, responseIn []byte
+
+	return func(input []byte, outChan chan<- Instruction) error {
+		if opponentIn == nil {
+			opponentIn = input
+			return nil
+		}
+
+		responseIn = input
+
+		if len(opponentIn) != 1 {
+			return fmt.Errorf("invalid opponent move")
+		}
+
+		if len(responseIn) != 1 {
+			return fmt.Errorf("invalid response move")
+		}
+
+		outChan <- Instruction{
+			Opponent: opponentIn[0],
+			Response: responseIn[0],
+		}
+
+		opponentIn = nil
+		responseIn = nil
+
+		return nil
+	}
 }
 
 func Part1(instructions []Instruction) {
