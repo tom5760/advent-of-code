@@ -1,58 +1,54 @@
-package main
+package day01
 
 import (
+	"bufio"
 	"fmt"
-	"log"
-	"os"
 	"sort"
 	"strconv"
 
-	"github.com/tom5760/advent-of-code/2022/input"
+	"github.com/tom5760/advent-of-code/2022/inpututils"
 )
 
-func main() {
-	if err := run(); err != nil {
-		log.Println(err)
-		os.Exit(1)
-	}
-}
+func Parse(name string) ([]int, error) {
+	var (
+		elves []int
+		elf   int
+	)
 
-func run() error {
-	parser := input.Parser[uint64]{
-		ParseFunc: Parse(),
-	}
+	err := inpututils.Scan(name, func(scanner *bufio.Scanner) error {
+		for scanner.Scan() {
+			line := scanner.Bytes()
+			if len(line) == 0 {
+				elves = append(elves, elf)
+				elf = 0
 
-	elves, err := parser.ReadFileSlice("./day01/input")
-	if err != nil {
-		return fmt.Errorf("failed to parse input: %w", err)
-	}
+				continue
+			}
 
-	sort.Slice(elves, func(i, j int) bool { return elves[j] < elves[i] })
+			calories, err := strconv.Atoi(string(line))
+			if err != nil {
+				return fmt.Errorf("failed to parse line: %w", err)
+			}
 
-	log.Println("PART 1:", elves[0])
-	log.Println("PART 2:", elves[0]+elves[1]+elves[2])
-
-	return nil
-}
-
-func Parse() input.ParseFunc[uint64] {
-	var elf uint64
-
-	return func(input []byte, outChan chan<- uint64) error {
-		if len(input) == 0 {
-			outChan <- elf
-			elf = 0
-
-			return nil
+			elf += calories
 		}
 
-		calories, err := strconv.ParseUint(string(input), 10, 0)
-		if err != nil {
-			return fmt.Errorf("failed to parse input: %w", err)
-		}
+		// Make sure to record the last elf.
+		elves = append(elves, elf)
 
-		elf += calories
+		// Sort the elves from highest to lowest.
+		sort.Slice(elves, func(i, j int) bool { return elves[j] < elves[i] })
 
 		return nil
-	}
+	})
+
+	return elves, err
+}
+
+func Part1(elves []int) int {
+	return elves[0]
+}
+
+func Part2(elves []int) int {
+	return elves[0] + elves[1] + elves[2]
 }

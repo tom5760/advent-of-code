@@ -1,25 +1,21 @@
-package main
+package day04
 
 import (
+	"bufio"
 	"bytes"
 	"fmt"
-	"log"
-	"os"
 	"strconv"
 
-	"github.com/tom5760/advent-of-code/2022/input"
+	"github.com/tom5760/advent-of-code/2022/inpututils"
 )
 
-func main() {
-	if err := run(); err != nil {
-		log.Println(err)
-		os.Exit(1)
-	}
-}
+func Parse(name string) ([]Pair, error) {
+	var pairs []Pair
 
-func run() error {
-	parser := input.Parser[Pair]{
-		ParseFunc: func(line []byte, outChan chan<- Pair) error {
+	err := inpututils.Scan(name, func(scanner *bufio.Scanner) error {
+		for scanner.Scan() {
+			line := scanner.Bytes()
+
 			pair := bytes.SplitN(line, []byte{','}, 2)
 			if len(pair) != 2 {
 				return fmt.Errorf("failed to split pair")
@@ -55,7 +51,7 @@ func run() error {
 				return fmt.Errorf("failed to parse second pair section start: %w", err)
 			}
 
-			outChan <- Pair{
+			pairs = append(pairs, Pair{
 				First: Sections{
 					Start: firstStart,
 					End:   firstEnd,
@@ -64,21 +60,13 @@ func run() error {
 					Start: secondStart,
 					End:   secondEnd,
 				},
-			}
+			})
+		}
 
-			return nil
-		},
-	}
+		return nil
+	})
 
-	pairs, err := parser.ReadFileSlice("./day04/input")
-	if err != nil {
-		return fmt.Errorf("failed to parse input: %w", err)
-	}
-
-	Part1(pairs)
-	Part2(pairs)
-
-	return nil
+	return pairs, err
 }
 
 type (
@@ -101,7 +89,7 @@ func (s Sections) Overlap(other Sections) bool {
 	return s.Start <= other.End && s.End >= other.Start
 }
 
-func Part1(pairs []Pair) {
+func Part1(pairs []Pair) int {
 	var contained int
 
 	for _, pair := range pairs {
@@ -110,10 +98,10 @@ func Part1(pairs []Pair) {
 		}
 	}
 
-	fmt.Println("PART 1:", contained)
+	return contained
 }
 
-func Part2(pairs []Pair) {
+func Part2(pairs []Pair) int {
 	var overlaps int
 
 	for _, pair := range pairs {
@@ -122,5 +110,5 @@ func Part2(pairs []Pair) {
 		}
 	}
 
-	fmt.Println("PART 2:", overlaps)
+	return overlaps
 }

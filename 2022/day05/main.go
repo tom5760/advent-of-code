@@ -1,148 +1,117 @@
-package main
+package day05
 
 import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"log"
-	"os"
 	"strconv"
+	"strings"
+
+	"github.com/tom5760/advent-of-code/2022/inpututils"
 )
 
-func main() {
-	if err := run(); err != nil {
-		log.Println(err)
-		os.Exit(1)
-	}
-}
+func Parse(name string) (Problem, error) {
+	var problem Problem
 
-func run() error {
-	stacks, instructions, err := ParseInput()
-	if err != nil {
-		return fmt.Errorf("failed to parse input: %w", err)
-	}
+	err := inpututils.Scan(name, func(scanner *bufio.Scanner) error {
+		// Scan initial crate stacks
+		for scanner.Scan() {
+			line := scanner.Bytes()
 
-	part2Stacks := stacks.Clone()
+			n := len(line)
+			if n == 0 {
+				break
+			}
 
-	Part1(stacks, instructions)
-	Part2(part2Stacks, instructions)
+			for i, col := 0, 0; i < n; {
+				if len(problem.stacks) <= col {
+					problem.stacks = append(problem.stacks, nil)
+				}
 
-	return nil
-}
+				if line[i] == '[' {
+					problem.stacks[col] = append([]Crate{Crate(line[i+1])}, problem.stacks[col]...)
+				}
 
-func ParseInput() (Stacks, []Instruction, error) {
-	f, err := os.Open("./day05/input")
-	if err != nil {
-		return nil, nil, fmt.Errorf("failed to open input file: %w", err)
-	}
-
-	defer f.Close()
-
-	scanner := bufio.NewScanner(f)
-
-	var stacks [][]Crate
-	parseStacks := func(line []byte) error {
-		n := len(line)
-		if n == 0 {
-			return nil
+				col++
+				i += 4
+			}
 		}
 
-		for i, col := 0, 0; i < n; {
-			if len(stacks) <= col {
-				stacks = append(stacks, nil)
+		// Scan instructions
+		for scanner.Scan() {
+			line := scanner.Bytes()
+
+			fields := bytes.Fields(line)
+			if len(fields) != 6 {
+				return fmt.Errorf("invalid instruction line format")
 			}
 
-			if line[i] == '[' {
-				stacks[col] = append([]Crate{Crate(line[i+1])}, stacks[col]...)
+			count, err := strconv.Atoi(string(fields[1]))
+			if err != nil {
+				return fmt.Errorf("failed to parse count: %w", err)
 			}
 
-			col++
-			i += 4
+			source, err := strconv.Atoi(string(fields[3]))
+			if err != nil {
+				return fmt.Errorf("failed to parse source: %w", err)
+			}
+
+			destination, err := strconv.Atoi(string(fields[5]))
+			if err != nil {
+				return fmt.Errorf("failed to parse destination: %w", err)
+			}
+
+			problem.instructions = append(problem.instructions, Instruction{
+				Count:       count,
+				Source:      source,
+				Destination: destination,
+			})
 		}
 
 		return nil
-	}
+	})
 
-	var instructions []Instruction
-	parseInstructions := func(line []byte) error {
-		fields := bytes.Fields(line)
-		if len(fields) != 6 {
-			return fmt.Errorf("invalid instruction line format")
-		}
-
-		count, err := strconv.Atoi(string(fields[1]))
-		if err != nil {
-			return fmt.Errorf("failed to parse count: %w", err)
-		}
-
-		source, err := strconv.Atoi(string(fields[3]))
-		if err != nil {
-			return fmt.Errorf("failed to parse source: %w", err)
-		}
-
-		destination, err := strconv.Atoi(string(fields[5]))
-		if err != nil {
-			return fmt.Errorf("failed to parse destination: %w", err)
-		}
-
-		instructions = append(instructions, Instruction{
-			Count:       count,
-			Source:      source,
-			Destination: destination,
-		})
-
-		return nil
-	}
-
-	scanFunc := parseStacks
-	for scanner.Scan() {
-		line := scanner.Bytes()
-		if len(line) == 0 {
-			scanFunc = parseInstructions
-			continue
-		}
-
-		if err := scanFunc(line); err != nil {
-			return nil, nil, err
-		}
-	}
-
-	if err := scanner.Err(); err != nil {
-		return nil, nil, err
-	}
-
-	return stacks, instructions, nil
+	return problem, err
 }
 
-func Part1(stacks Stacks, instructions []Instruction) {
-	for _, instruction := range instructions {
+func Part1(problem Problem) string {
+	stacks := problem.stacks.Clone()
+
+	for _, instruction := range problem.instructions {
 		stacks.ExecuteV1(instruction)
 	}
 
-	fmt.Print("PART 1: ")
+	var sb strings.Builder
 
 	for _, stack := range stacks {
-		fmt.Print(stack[len(stack)-1])
+		sb.WriteByte(byte(stack[len(stack)-1]))
 	}
 
-	fmt.Print("\n")
+	return sb.String()
 }
 
-func Part2(stacks Stacks, instructions []Instruction) {
-	for _, instruction := range instructions {
+func Part2(problem Problem) string {
+	stacks := problem.stacks.Clone()
+
+	for _, instruction := range problem.instructions {
 		stacks.ExecuteV2(instruction)
 	}
 
-	fmt.Print("PART 2: ")
+	var sb strings.Builder
 
 	for _, stack := range stacks {
-		fmt.Print(stack[len(stack)-1])
+		sb.WriteByte(byte(stack[len(stack)-1]))
 	}
 
-	fmt.Print("\n")
+	return sb.String()
 }
 
 type (
+	Problem struct {
+		stacks       Stacks
+		instructions []Instruction
+	}
+
 	Stacks [][]Crate
 
 	Crate byte

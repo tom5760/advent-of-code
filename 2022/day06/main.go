@@ -1,41 +1,34 @@
-package main
+package day06
 
 import (
 	"bytes"
-	"fmt"
-	"log"
 	"os"
+
+	"github.com/tom5760/advent-of-code/2022/testutils"
 )
 
-func main() {
-	if err := run(); err != nil {
-		log.Println(err)
-		os.Exit(1)
-	}
+func Parse(name string) ([]byte, error) {
+	buf, err := os.ReadFile(name)
+
+	return bytes.TrimSpace(buf), err
 }
 
-func run() error {
-	buf, err := os.ReadFile("./day06/input")
-	if err != nil {
-		return fmt.Errorf("failed to open input file: %w", err)
-	}
+func Part1(buf []byte) int {
+	return FindMarker(buf, 4)
+}
 
-	buf = bytes.TrimSpace(buf)
-
-	fmt.Println("PART 1:", FindMarker(buf, 4))
-	fmt.Println("PART 2:", FindMarker(buf, 14))
-
-	return nil
+func Part2(buf []byte) int {
+	return FindMarker(buf, 14)
 }
 
 func FindMarker(buf []byte, markerLen int) int {
-	marker := make([]byte, markerLen)
+	for i := range buf {
+		marker := buf[i : i+markerLen]
 
-	for i, c := range buf {
-		marker[i%markerLen] = c
+		testutils.GT.Log(string(marker))
 
-		if i > markerLen && unique(marker) {
-			return i + 1
+		if unique(marker) {
+			return i + markerLen
 		}
 	}
 

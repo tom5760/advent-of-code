@@ -1,4 +1,4 @@
-package day01
+package day03
 
 import (
 	"testing"
@@ -6,19 +6,19 @@ import (
 	"github.com/tom5760/advent-of-code/2022/testutils"
 )
 
-func TestDay01(t *testing.T) {
+func TestDay03(t *testing.T) {
 	t.Parallel()
 
 	testutils.Run(t, Parse, Part1, Part2, []testutils.Test[int]{
 		{
 			Name:  "example",
-			Part1: 24000,
-			Part2: 45000,
+			Part1: 157,
+			Part2: 70,
 		},
 		{
 			Name:  "input",
-			Part1: 69289,
-			Part2: 205615,
+			Part1: 7581,
+			Part2: 2525,
 		},
 	})
 }

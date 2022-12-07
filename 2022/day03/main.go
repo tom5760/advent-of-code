@@ -1,23 +1,17 @@
-package main
+package day03
 
 import (
-	"fmt"
-	"log"
-	"os"
+	"bufio"
 
-	"github.com/tom5760/advent-of-code/2022/input"
+	"github.com/tom5760/advent-of-code/2022/inpututils"
 )
 
-func main() {
-	if err := run(); err != nil {
-		log.Println(err)
-		os.Exit(1)
-	}
-}
+func Parse(name string) ([]Rucksack, error) {
+	var sacks []Rucksack
 
-func run() error {
-	parser := input.Parser[Rucksack]{
-		ParseFunc: func(line []byte, outChan chan<- Rucksack) error {
+	err := inpututils.Scan(name, func(scanner *bufio.Scanner) error {
+		for scanner.Scan() {
+			line := scanner.Bytes()
 			items := make([]Item, len(line))
 
 			for i := range items {
@@ -26,26 +20,18 @@ func run() error {
 
 			n := len(items) / 2
 
-			outChan <- Rucksack{
+			sacks = append(sacks, Rucksack{
 				Items: items,
 
 				First:  items[:n],
 				Second: items[n:],
-			}
+			})
+		}
 
-			return nil
-		},
-	}
+		return nil
+	})
 
-	sacks, err := parser.ReadFileSlice("./day03/input")
-	if err != nil {
-		return fmt.Errorf("failed to parse input: %w", err)
-	}
-
-	Part1(sacks)
-	Part2(sacks)
-
-	return nil
+	return sacks, err
 }
 
 type Item byte
@@ -72,28 +58,6 @@ type Rucksack struct {
 	Second []Item
 }
 
-func Part1(sacks []Rucksack) {
-	var total int
-
-	for _, sack := range sacks {
-		item := CommonItem(sack.First, sack.Second)
-		total += item.Priority()
-	}
-
-	log.Println("PART 1:", total)
-}
-
-func Part2(sacks []Rucksack) {
-	var total int
-
-	for i := 0; i < len(sacks); i += 3 {
-		item := CommonItem(sacks[i].Items, sacks[i+1].Items, sacks[i+2].Items)
-		total += item.Priority()
-	}
-
-	log.Println("PART 2:", total)
-}
-
 func CommonItem(sacks ...[]Item) Item {
 	counts := make(map[Item]int, len(sacks[0]))
 
@@ -118,4 +82,26 @@ func CommonItem(sacks ...[]Item) Item {
 	}
 
 	panic("no common item found")
+}
+
+func Part1(sacks []Rucksack) int {
+	var total int
+
+	for _, sack := range sacks {
+		item := CommonItem(sack.First, sack.Second)
+		total += item.Priority()
+	}
+
+	return total
+}
+
+func Part2(sacks []Rucksack) int {
+	var total int
+
+	for i := 0; i < len(sacks); i += 3 {
+		item := CommonItem(sacks[i].Items, sacks[i+1].Items, sacks[i+2].Items)
+		total += item.Priority()
+	}
+
+	return total
 }

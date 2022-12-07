@@ -1,13 +1,45 @@
-package main
+package day02
 
 import (
 	"bufio"
 	"fmt"
-	"log"
-	"os"
 
-	"github.com/tom5760/advent-of-code/2022/input"
+	"github.com/tom5760/advent-of-code/2022/inpututils"
 )
+
+func Parse(name string) ([]Instruction, error) {
+	var instructions []Instruction
+
+	err := inpututils.Scan(name, func(scanner *bufio.Scanner) error {
+		scanner.Split(bufio.ScanWords)
+
+		for scanner.Scan() {
+			opponent := scanner.Bytes()
+
+			if !scanner.Scan() {
+				return fmt.Errorf("missing response move")
+			}
+
+			response := scanner.Bytes()
+
+			if len(opponent) != 1 {
+				return fmt.Errorf("invalid opponent move")
+			}
+			if len(response) != 1 {
+				return fmt.Errorf("invalid response move")
+			}
+
+			instructions = append(instructions, Instruction{
+				Opponent: opponent[0],
+				Response: response[0],
+			})
+		}
+
+		return nil
+	})
+
+	return instructions, err
+}
 
 type Move int
 
@@ -71,62 +103,20 @@ func (r *Round) Score() int {
 	return score
 }
 
-func main() {
-	if err := run(); err != nil {
-		log.Println(err)
-		os.Exit(1)
+func ToMove(in byte) Move {
+	switch in {
+	case 'A', 'X':
+		return Rock
+	case 'B', 'Y':
+		return Paper
+	case 'C', 'Z':
+		return Scissors
+	default:
+		panic("invalid move")
 	}
 }
 
-func run() error {
-	parser := input.Parser[Instruction]{
-		TokenFunc: bufio.ScanWords,
-		ParseFunc: Parse(),
-	}
-
-	instructions, err := parser.ReadFileSlice("./day02/input")
-	if err != nil {
-		return fmt.Errorf("failed to parse input: %w", err)
-	}
-
-	Part1(instructions)
-	Part2(instructions)
-
-	return nil
-}
-
-func Parse() input.ParseFunc[Instruction] {
-	var opponentIn, responseIn []byte
-
-	return func(input []byte, outChan chan<- Instruction) error {
-		if opponentIn == nil {
-			opponentIn = input
-			return nil
-		}
-
-		responseIn = input
-
-		if len(opponentIn) != 1 {
-			return fmt.Errorf("invalid opponent move")
-		}
-
-		if len(responseIn) != 1 {
-			return fmt.Errorf("invalid response move")
-		}
-
-		outChan <- Instruction{
-			Opponent: opponentIn[0],
-			Response: responseIn[0],
-		}
-
-		opponentIn = nil
-		responseIn = nil
-
-		return nil
-	}
-}
-
-func Part1(instructions []Instruction) {
+func Part1(instructions []Instruction) int {
 	var total int
 
 	for _, instruction := range instructions {
@@ -138,10 +128,10 @@ func Part1(instructions []Instruction) {
 		total += round.Score()
 	}
 
-	log.Println("PART 1:", total)
+	return total
 }
 
-func Part2(instructions []Instruction) {
+func Part2(instructions []Instruction) int {
 	var total int
 
 	for _, instruction := range instructions {
@@ -177,18 +167,5 @@ func Part2(instructions []Instruction) {
 		total += round.Score()
 	}
 
-	log.Println("PART 2:", total)
-}
-
-func ToMove(in byte) Move {
-	switch in {
-	case 'A', 'X':
-		return Rock
-	case 'B', 'Y':
-		return Paper
-	case 'C', 'Z':
-		return Scissors
-	default:
-		panic("invalid move")
-	}
+	return total
 }

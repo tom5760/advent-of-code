@@ -4,11 +4,11 @@ export AOC_TOKEN = $(shell cat session-token)
 
 .PHONY: all
 all:
-	@echo "run specific day with 'make XX'"
+	go test ./...
 
 .PHONY: $(DAYS)
 $(DAYS):
-	go run ./day$@
+	go test ./day$@
 
 day%: day%/input
 
