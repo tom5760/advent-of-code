@@ -11,10 +11,11 @@ import (
 
 	"github.com/tom5760/advent-of-code/2022/inpututils"
 	"github.com/tom5760/advent-of-code/2022/sliceutils"
+	"github.com/tom5760/advent-of-code/2022/structs"
 )
 
-func Parse(name string) (Grid[int], error) {
-	var grid Grid[int]
+func Parse(name string) (structs.Grid[int], error) {
+	var grid structs.Grid[int]
 
 	err := inpututils.Scan(name, func(scanner *bufio.Scanner) error {
 		scanner.Split(bufio.ScanBytes)
@@ -57,8 +58,8 @@ func Parse(name string) (Grid[int], error) {
 	return grid, err
 }
 
-func Part1(grid Grid[int]) int {
-	visible := Grid[bool]{
+func Part1(grid structs.Grid[int]) int {
+	visible := structs.Grid[bool]{
 		Height: grid.Height,
 		Width:  grid.Width,
 		Values: make([]bool, grid.Height*grid.Width),
@@ -81,8 +82,8 @@ func Part1(grid Grid[int]) int {
 	return sliceutils.Count(visible.Values, func(isVisible bool) bool { return isVisible })
 }
 
-func Part2(grid Grid[int]) int {
-	scores := Grid[int]{
+func Part2(grid structs.Grid[int]) int {
+	scores := structs.Grid[int]{
 		Height: grid.Height,
 		Width:  grid.Width,
 		Values: make([]int, grid.Height*grid.Width),
@@ -102,23 +103,7 @@ func Part2(grid Grid[int]) int {
 	return sliceutils.Max(scores.Values)
 }
 
-type (
-	Grid[T any] struct {
-		Height int
-		Width  int
-		Values []T
-	}
-)
-
-func (g *Grid[T]) Get(x, y int) T {
-	return g.Values[y*g.Width+x]
-}
-
-func (g *Grid[T]) Set(x, y int, v T) {
-	g.Values[y*g.Width+x] = v
-}
-
-func (g *Grid[T]) Move(x, y int, moveFn MoveFunc[T], fn func(int, int, T) bool) {
+func Move(g *structs.Grid[int], x, y int, moveFn MoveFunc, fn func(int, int, int) bool) {
 	fn(x, y, g.Get(x, y))
 
 	for moveFn(g, &x, &y) {
@@ -128,12 +113,12 @@ func (g *Grid[T]) Move(x, y int, moveFn MoveFunc[T], fn func(int, int, T) bool) 
 	}
 }
 
-type MoveFunc[T any] func(grid *Grid[T], x, y *int) bool
+type MoveFunc func(grid *structs.Grid[int], x, y *int) bool
 
-func WalkVisible(grid Grid[int], startX, startY int, moveFn MoveFunc[int], fn func(int, int)) {
+func WalkVisible(grid structs.Grid[int], startX, startY int, moveFn MoveFunc, fn func(int, int)) {
 	maxHeight := math.MinInt
 
-	grid.Move(startX, startY, moveFn, func(x, y, height int) bool {
+	Move(&grid, startX, startY, moveFn, func(x, y, height int) bool {
 		if height > maxHeight {
 			fn(x, y)
 			maxHeight = height
@@ -143,11 +128,11 @@ func WalkVisible(grid Grid[int], startX, startY int, moveFn MoveFunc[int], fn fu
 	})
 }
 
-func CountDistance(grid Grid[int], startX, startY int, moveFn MoveFunc[int]) int {
+func CountDistance(grid structs.Grid[int], startX, startY int, moveFn MoveFunc) int {
 	var total int
 	maxHeight := grid.Get(startX, startY)
 
-	grid.Move(startX, startY, moveFn, func(x, y, height int) bool {
+	Move(&grid, startX, startY, moveFn, func(x, y, height int) bool {
 		total++
 		return height < maxHeight
 	})
@@ -156,7 +141,7 @@ func CountDistance(grid Grid[int], startX, startY int, moveFn MoveFunc[int]) int
 	return total - 1
 }
 
-func MoveLeft(grid *Grid[int], x, y *int) bool {
+func MoveLeft(grid *structs.Grid[int], x, y *int) bool {
 	if *x > 0 {
 		*x--
 		return true
@@ -165,7 +150,7 @@ func MoveLeft(grid *Grid[int], x, y *int) bool {
 	return false
 }
 
-func MoveRight(grid *Grid[int], x, y *int) bool {
+func MoveRight(grid *structs.Grid[int], x, y *int) bool {
 	if *x < grid.Width-1 {
 		*x++
 		return true
@@ -174,7 +159,7 @@ func MoveRight(grid *Grid[int], x, y *int) bool {
 	return false
 }
 
-func MoveUp(grid *Grid[int], x, y *int) bool {
+func MoveUp(grid *structs.Grid[int], x, y *int) bool {
 	if *y > 0 {
 		*y--
 		return true
@@ -183,7 +168,7 @@ func MoveUp(grid *Grid[int], x, y *int) bool {
 	return false
 }
 
-func MoveDown(grid *Grid[int], x, y *int) bool {
+func MoveDown(grid *structs.Grid[int], x, y *int) bool {
 	if *y < grid.Height-1 {
 		*y++
 		return true
