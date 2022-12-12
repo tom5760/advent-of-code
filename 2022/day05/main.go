@@ -1,3 +1,6 @@
+// Package day05 implements the solution for Advent of Code 2022 day 5.
+//
+// See: https://adventofcode.com/2022/day/5
 package day05
 
 import (

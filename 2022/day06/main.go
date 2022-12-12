@@ -1,3 +1,6 @@
+// Package day06 implements the solution for Advent of Code 2022 day 6.
+//
+// See: https://adventofcode.com/2022/day/6
 package day06
 
 import (

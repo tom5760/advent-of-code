@@ -1,3 +1,6 @@
+// Package day03 implements the solution for Advent of Code 2022 day 3.
+//
+// See: https://adventofcode.com/2022/day/3
 package day03
 
 import (

@@ -1,3 +1,6 @@
+// Package day02 implements the solution for Advent of Code 2022 day 2.
+//
+// See: https://adventofcode.com/2022/day/2
 package day02
 
 import (

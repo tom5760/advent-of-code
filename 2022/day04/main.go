@@ -1,3 +1,6 @@
+// Package day04 implements the solution for Advent of Code 2022 day 4.
+//
+// See: https://adventofcode.com/2022/day/4
 package day04
 
 import (
