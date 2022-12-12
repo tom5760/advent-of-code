@@ -3,13 +3,13 @@ package testutils
 import "testing"
 
 type (
-	Test[T any] struct {
+	Test[T1, T2 any] struct {
 		Name  string
-		Part1 T
-		Part2 T
+		Part1 T1
+		Part2 T2
 	}
 
-	Tests[T any] []Test[T]
+	Tests[T1, T2 any] []Test[T1, T2]
 
 	ParseFunc[T any]   func(name string) (T, error)
 	PartFunc[I, O any] func(input I) O
@@ -17,11 +17,12 @@ type (
 
 var GT *testing.T
 
-func Run[I any, O comparable](
+func Run[I any, O1, O2 comparable](
 	t *testing.T,
 	parse ParseFunc[I],
-	part1, part2 PartFunc[I, O],
-	tests []Test[O],
+	part1 PartFunc[I, O1],
+	part2 PartFunc[I, O2],
+	tests []Test[O1, O2],
 ) {
 	t.Helper()
 
@@ -29,7 +30,7 @@ func Run[I any, O comparable](
 		test := test
 
 		t.Run(test.Name, func(t *testing.T) {
-			t.Parallel()
+			// t.Parallel()
 			t.Helper()
 			GT = t
 
