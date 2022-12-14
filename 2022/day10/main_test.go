@@ -7,7 +7,7 @@ import (
 )
 
 func TestDay10(t *testing.T) {
-	// t.Parallel()
+	t.Parallel()
 
 	testutils.Run(t, Parse, Part1, Part2, []testutils.Test[int, string]{
 		{

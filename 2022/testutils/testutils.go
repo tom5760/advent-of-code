@@ -30,7 +30,7 @@ func Run[I any, O1, O2 comparable](
 		test := test
 
 		t.Run(test.Name, func(t *testing.T) {
-			// t.Parallel()
+			t.Parallel()
 			t.Helper()
 			GT = t
 
