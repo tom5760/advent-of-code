@@ -4,58 +4,23 @@
 package day08
 
 import (
-	"bufio"
 	"fmt"
 	"math"
 	"strconv"
 
-	"github.com/tom5760/advent-of-code/2022/inpututils"
 	"github.com/tom5760/advent-of-code/2022/sliceutils"
 	"github.com/tom5760/advent-of-code/2022/structs"
 )
 
 func Parse(name string) (structs.Grid[int], error) {
-	var grid structs.Grid[int]
-
-	err := inpututils.Scan(name, func(scanner *bufio.Scanner) error {
-		scanner.Split(bufio.ScanBytes)
-
-		widthKnown := false
-
-		for scanner.Scan() {
-			input := scanner.Bytes()
-			if len(input) != 1 {
-				return fmt.Errorf("failed to read byte?")
-			}
-
-			b := input[0]
-			switch b {
-			case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
-				if !widthKnown {
-					grid.Width++
-				}
-
-			case '\n':
-				widthKnown = true
-				grid.Height++
-
-				continue
-			default:
-				return fmt.Errorf("unexpected height %q", b)
-			}
-
-			height, err := strconv.Atoi(string(b))
-			if err != nil {
-				return fmt.Errorf("failed to parse height: %w", err)
-			}
-
-			grid.Values = append(grid.Values, height)
+	return structs.ScanGrid(name, func(b byte) (int, error) {
+		height, err := strconv.Atoi(string(b))
+		if err != nil {
+			return 0, fmt.Errorf("failed to parse height: %w", err)
 		}
 
-		return nil
+		return height, nil
 	})
-
-	return grid, err
 }
 
 func Part1(grid structs.Grid[int]) int {
