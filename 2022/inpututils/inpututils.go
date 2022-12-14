@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"strings"
 )
 
 func Scan(name string, scanFunc func(*bufio.Scanner) error) error {
@@ -25,4 +26,9 @@ func Scan(name string, scanFunc func(*bufio.Scanner) error) error {
 	}
 
 	return nil
+}
+
+func TrimPrefix(s, prefix string) (string, bool) {
+	ns := strings.TrimPrefix(s, prefix)
+	return ns, s != ns
 }
