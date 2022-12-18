@@ -7,17 +7,11 @@ import (
 	"github.com/tom5760/advent-of-code/2022/inpututils"
 )
 
-type (
-	Coordinate struct {
-		X, Y int
-	}
-
-	Grid[T any] struct {
-		Height int
-		Width  int
-		Values []T
-	}
-)
+type Grid[T any] struct {
+	Height int
+	Width  int
+	Values []T
+}
 
 func ScanGrid[T any](name string, parseFn func(byte) (T, error)) (Grid[T], error) {
 	var grid Grid[T]
