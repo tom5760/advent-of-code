@@ -1,20 +1,22 @@
-package aoc2023
+package day01
 
 import (
 	"bufio"
 	"bytes"
 	"fmt"
 	"io"
+	"log"
 )
 
-func Day01(input io.Reader) (int, int, error) {
+func Run(lg *log.Logger, input io.Reader) (int, int, error) {
 	scanner := bufio.NewScanner(input)
 
 	var part1, part2 int
 
 	for scanner.Scan() {
-		part1 += day01part1(scanner.Bytes())
-		part2 += day01part2(scanner.Bytes())
+		line := scanner.Bytes()
+		part1 += doPart1(line)
+		part2 += doPart2(line)
 	}
 
 	if err := scanner.Err(); err != nil {
@@ -24,7 +26,7 @@ func Day01(input io.Reader) (int, int, error) {
 	return part1, part2, nil
 }
 
-func day01part1(line []byte) int {
+func doPart1(line []byte) int {
 	var (
 		haveFirst   bool
 		first, last byte
@@ -45,7 +47,19 @@ func day01part1(line []byte) int {
 	return int((first * 10) + last)
 }
 
-func day01part2(line []byte) int {
+var numBufs = [][]byte{
+	[]byte("one"),
+	[]byte("two"),
+	[]byte("three"),
+	[]byte("four"),
+	[]byte("five"),
+	[]byte("six"),
+	[]byte("seven"),
+	[]byte("eight"),
+	[]byte("nine"),
+}
+
+func doPart2(line []byte) int {
 	var (
 		haveFirst   bool
 		first, last byte
@@ -84,16 +98,4 @@ func day01part2(line []byte) int {
 	}
 
 	return int((first * 10) + last)
-}
-
-var numBufs = [][]byte{
-	{'o', 'n', 'e'},
-	{'t', 'w', 'o'},
-	{'t', 'h', 'r', 'e', 'e'},
-	{'f', 'o', 'u', 'r'},
-	{'f', 'i', 'v', 'e'},
-	{'s', 'i', 'x'},
-	{'s', 'e', 'v', 'e', 'n'},
-	{'e', 'i', 'g', 'h', 't'},
-	{'n', 'i', 'n', 'e'},
 }
