@@ -43,13 +43,13 @@ func Run[D Day](t *testing.T, parserFn InputParser[D], tests []Test) {
 			if v := input.Part1(); v != test.Part1 {
 				t.Errorf("failed part 1; got %v; want %v", v, test.Part1)
 			} else {
-				t.Logf("Part 1: %v", v)
+				t.Logf("part 1: %v", v)
 			}
 
 			if v := input.Part2(); v != test.Part2 {
 				t.Errorf("failed part 2; got %v; want %v", v, test.Part2)
 			} else {
-				t.Logf("Part 2: %v", v)
+				t.Logf("part 2: %v", v)
 			}
 		})
 	}

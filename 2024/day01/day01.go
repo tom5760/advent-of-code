@@ -16,8 +16,8 @@ type Input struct {
 	Right []int
 }
 
-// each column is split by three spaces
-var columnDelimiter = []byte{' ', ' ', ' '}
+// Each column is split by three spaces.
+var delimiter = []byte{' ', ' ', ' '}
 
 func Parse(r io.Reader) (*Input, error) {
 	var input Input
@@ -25,7 +25,7 @@ func Parse(r io.Reader) (*Input, error) {
 	scanner := bufio.NewScanner(r)
 
 	for scanner.Scan() {
-		parts := bytes.Split(scanner.Bytes(), columnDelimiter)
+		parts := bytes.Split(scanner.Bytes(), delimiter)
 		if len(parts) != 2 {
 			return nil, errors.New("unexpected line format")
 		}
@@ -55,15 +55,15 @@ func Parse(r io.Reader) (*Input, error) {
 	return &input, nil
 }
 
-func (d *Input) Part1() int {
-	slices.Sort(d.Left)
-	slices.Sort(d.Right)
+func (v *Input) Part1() int {
+	slices.Sort(v.Left)
+	slices.Sort(v.Right)
 
 	var distance int
 
-	for i := range d.Left {
-		left := d.Left[i]
-		right := d.Right[i]
+	for i := range v.Left {
+		left := v.Left[i]
+		right := v.Right[i]
 
 		distance += int(math.Abs(float64(left - right)))
 	}
@@ -71,12 +71,12 @@ func (d *Input) Part1() int {
 	return distance
 }
 
-func (d *Input) Part2() int {
+func (v *Input) Part2() int {
 	var similarity int
 
-	for _, left := range d.Left {
+	for _, left := range v.Left {
 		var count int
-		for _, right := range d.Right {
+		for _, right := range v.Right {
 			if left == right {
 				count++
 			}
