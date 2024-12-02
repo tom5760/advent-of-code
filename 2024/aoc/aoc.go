@@ -6,20 +6,17 @@ import (
 	"testing"
 )
 
-type Day interface {
-	Part1() int
-	Part2() int
-}
+type (
+	Test struct {
+		Name  string
+		Part1 int
+		Part2 int
+	}
 
-type Test struct {
-	Name  string
-	Part1 int
-	Part2 int
-}
+	DayFunc func(r io.Reader) (int, int, error)
+)
 
-type InputParser[D Day] func(io.Reader) (D, error)
-
-func Run[D Day](t *testing.T, parserFn InputParser[D], tests []Test) {
+func Run(t *testing.T, runFn DayFunc, tests []Test) {
 	t.Helper()
 	t.Parallel()
 
@@ -35,21 +32,20 @@ func Run[D Day](t *testing.T, parserFn InputParser[D], tests []Test) {
 
 			defer f.Close()
 
-			input, err := parserFn(f)
+			part1, part2, err := runFn(f)
 			if err != nil {
 				t.Fatalf("failed to parse test input: %v", err)
 			}
 
-			if v := input.Part1(); v != test.Part1 {
-				t.Errorf("failed part 1; got %v; want %v", v, test.Part1)
-			} else {
-				t.Logf("part 1: %v", v)
+			t.Logf("part 1: %v", part1)
+			t.Logf("part 2: %v", part2)
+
+			if part1 != test.Part1 {
+				t.Errorf("failed part 1; got %v; want %v", part1, test.Part1)
 			}
 
-			if v := input.Part2(); v != test.Part2 {
-				t.Errorf("failed part 2; got %v; want %v", v, test.Part2)
-			} else {
-				t.Logf("part 2: %v", v)
+			if part2 != test.Part2 {
+				t.Errorf("failed part 2; got %v; want %v", part2, test.Part2)
 			}
 		})
 	}

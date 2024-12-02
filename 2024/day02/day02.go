@@ -1,53 +1,37 @@
 package day02
 
 import (
-	"bufio"
-	"bytes"
 	"errors"
-	"fmt"
 	"io"
 	"slices"
-	"strconv"
+
+	"github.com/tom5760/advent-of-code/aoc2024/aoc"
 )
 
-type (
-	Input  []Report
-	Report []int
-)
+type Report []int
 
-// Each column is split by one space.
-var delimiter = []byte{' '}
+func Run(r io.Reader) (int, int, error) {
+	var part1, part2 int
 
-func Parse(r io.Reader) (Input, error) {
-	var input Input
-
-	scanner := bufio.NewScanner(r)
-
-	for scanner.Scan() {
-		parts := bytes.Split(scanner.Bytes(), delimiter)
-		report := make(Report, len(parts))
-
-		for i, part := range parts {
-			level, err := strconv.Atoi(string(part))
-			if err != nil {
-				return nil, fmt.Errorf("failed to parse level: %w", err)
-			}
-
-			report[i] = level
+	for fields, err := range aoc.IterRowsInt(r) {
+		if err != nil {
+			return part1, part2, err
+		}
+		if len(fields) == 0 {
+			return part1, part2, errors.New("empty report")
 		}
 
-		if len(report) == 0 {
-			return nil, errors.New("empty report")
+		report := Report(fields)
+
+		if report.IsSafe() {
+			part1++
+			part2++
+		} else if report.IsSafeProblemDampener() {
+			part2++
 		}
-
-		input = append(input, report)
 	}
 
-	if err := scanner.Err(); err != nil {
-		return nil, fmt.Errorf("failed to scan input: %w", err)
-	}
-
-	return input, nil
+	return part1, part2, nil
 }
 
 func (r Report) IsSafe() bool {
@@ -105,28 +89,4 @@ func (r Report) IsSafeProblemDampener() bool {
 
 func (r Report) removeLevel(i int) Report {
 	return slices.Concat(r[:i], r[i+1:])
-}
-
-func (v Input) Part1() int {
-	var count int
-
-	for _, report := range v {
-		if report.IsSafe() {
-			count++
-		}
-	}
-
-	return count
-}
-
-func (v Input) Part2() int {
-	var count int
-
-	for _, report := range v {
-		if report.IsSafeProblemDampener() {
-			count++
-		}
-	}
-
-	return count
 }

@@ -16,73 +16,73 @@ type Input struct {
 	Right []int
 }
 
-// Each column is split by three spaces.
-var delimiter = []byte{' ', ' ', ' '}
-
-func Parse(r io.Reader) (*Input, error) {
-	var input Input
+func Run(r io.Reader) (int, int, error) {
+	var left, right []int
 
 	scanner := bufio.NewScanner(r)
 
 	for scanner.Scan() {
-		parts := bytes.Split(scanner.Bytes(), delimiter)
-		if len(parts) != 2 {
-			return nil, errors.New("unexpected line format")
+		fields := bytes.Fields(scanner.Bytes())
+		if len(fields) != 2 {
+			return 0, 0, errors.New("unexpected line format")
 		}
 
-		left, err := strconv.Atoi(string(parts[0]))
+		l, err := strconv.Atoi(string(fields[0]))
 		if err != nil {
-			return nil, fmt.Errorf("failed to parse left column: %w", err)
+			return 0, 0, fmt.Errorf("failed to parse left column: %w", err)
 		}
 
-		right, err := strconv.Atoi(string(parts[1]))
+		r, err := strconv.Atoi(string(fields[1]))
 		if err != nil {
-			return nil, fmt.Errorf("failed to parse right column: %w", err)
+			return 0, 0, fmt.Errorf("failed to parse right column: %w", err)
 		}
 
-		input.Left = append(input.Left, left)
-		input.Right = append(input.Right, right)
+		left = append(left, l)
+		right = append(right, r)
 	}
 
 	if err := scanner.Err(); err != nil {
-		return nil, fmt.Errorf("failed to scan input: %w", err)
+		return 0, 0, fmt.Errorf("failed to scan input: %w", err)
 	}
 
-	if len(input.Left) != len(input.Right) {
-		return nil, errors.New("columns are not equal length")
+	if len(left) != len(right) {
+		return 0, 0, errors.New("columns are not equal length")
 	}
 
-	return &input, nil
+	slices.Sort(left)
+	slices.Sort(right)
+
+	p1 := part1(left, right)
+	p2 := part2(left, right)
+
+	return p1, p2, nil
 }
 
-func (v *Input) Part1() int {
-	slices.Sort(v.Left)
-	slices.Sort(v.Right)
-
+func part1(left, right []int) int {
 	var distance int
 
-	for i := range v.Left {
-		left := v.Left[i]
-		right := v.Right[i]
+	for i := range left {
+		l := left[i]
+		r := right[i]
 
-		distance += int(math.Abs(float64(left - right)))
+		distance += int(math.Abs(float64(l - r)))
 	}
 
 	return distance
 }
 
-func (v *Input) Part2() int {
+func part2(left, right []int) int {
 	var similarity int
 
-	for _, left := range v.Left {
+	for _, l := range left {
 		var count int
-		for _, right := range v.Right {
-			if left == right {
+		for _, r := range right {
+			if l == r {
 				count++
 			}
 		}
 
-		similarity += left * count
+		similarity += l * count
 	}
 
 	return similarity

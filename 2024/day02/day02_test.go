@@ -8,7 +8,7 @@ import (
 )
 
 func TestDay02(t *testing.T) {
-	aoc.Run(t, day02.Parse, []aoc.Test{
+	aoc.Run(t, day02.Run, []aoc.Test{
 		{
 			Name:  "example",
 			Part1: 2,
