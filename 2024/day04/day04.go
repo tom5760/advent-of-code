@@ -28,8 +28,8 @@ func Part1(g *grid.Grid) int {
 		}
 	}
 
-	for c := range g.Cells() {
-		if c.B != 'X' {
+	for p, b := range g.Cells() {
+		if b != 'X' {
 			continue
 		}
 
@@ -37,58 +37,58 @@ func Part1(g *grid.Grid) int {
 
 		// up
 		check([]grid.Point{
-			{X: c.X, Y: c.Y - 1},
-			{X: c.X, Y: c.Y - 2},
-			{X: c.X, Y: c.Y - 3},
+			{X: p.X, Y: p.Y - 1},
+			{X: p.X, Y: p.Y - 2},
+			{X: p.X, Y: p.Y - 3},
 		})
 
 		// down
 		check([]grid.Point{
-			{X: c.X, Y: c.Y + 1},
-			{X: c.X, Y: c.Y + 2},
-			{X: c.X, Y: c.Y + 3},
+			{X: p.X, Y: p.Y + 1},
+			{X: p.X, Y: p.Y + 2},
+			{X: p.X, Y: p.Y + 3},
 		})
 
 		// left
 		check([]grid.Point{
-			{X: c.X - 1, Y: c.Y},
-			{X: c.X - 2, Y: c.Y},
-			{X: c.X - 3, Y: c.Y},
+			{X: p.X - 1, Y: p.Y},
+			{X: p.X - 2, Y: p.Y},
+			{X: p.X - 3, Y: p.Y},
 		})
 
 		// right
 		check([]grid.Point{
-			{X: c.X + 1, Y: c.Y},
-			{X: c.X + 2, Y: c.Y},
-			{X: c.X + 3, Y: c.Y},
+			{X: p.X + 1, Y: p.Y},
+			{X: p.X + 2, Y: p.Y},
+			{X: p.X + 3, Y: p.Y},
 		})
 
 		// up left
 		check([]grid.Point{
-			{X: c.X - 1, Y: c.Y - 1},
-			{X: c.X - 2, Y: c.Y - 2},
-			{X: c.X - 3, Y: c.Y - 3},
+			{X: p.X - 1, Y: p.Y - 1},
+			{X: p.X - 2, Y: p.Y - 2},
+			{X: p.X - 3, Y: p.Y - 3},
 		})
 
 		// up right
 		check([]grid.Point{
-			{X: c.X + 1, Y: c.Y - 1},
-			{X: c.X + 2, Y: c.Y - 2},
-			{X: c.X + 3, Y: c.Y - 3},
+			{X: p.X + 1, Y: p.Y - 1},
+			{X: p.X + 2, Y: p.Y - 2},
+			{X: p.X + 3, Y: p.Y - 3},
 		})
 
 		// down right
 		check([]grid.Point{
-			{X: c.X + 1, Y: c.Y + 1},
-			{X: c.X + 2, Y: c.Y + 2},
-			{X: c.X + 3, Y: c.Y + 3},
+			{X: p.X + 1, Y: p.Y + 1},
+			{X: p.X + 2, Y: p.Y + 2},
+			{X: p.X + 3, Y: p.Y + 3},
 		})
 
 		// down left
 		check([]grid.Point{
-			{X: c.X - 1, Y: c.Y + 1},
-			{X: c.X - 2, Y: c.Y + 2},
-			{X: c.X - 3, Y: c.Y + 3},
+			{X: p.X - 1, Y: p.Y + 1},
+			{X: p.X - 2, Y: p.Y + 2},
+			{X: p.X - 3, Y: p.Y + 3},
 		})
 	}
 
@@ -106,8 +106,8 @@ func Part2(g *grid.Grid) int {
 		}
 	}
 
-	for c := range g.Cells() {
-		if c.B != 'A' {
+	for p, b := range g.Cells() {
+		if b != 'A' {
 			continue
 		}
 
@@ -116,60 +116,60 @@ func Part2(g *grid.Grid) int {
 		check(
 			// up left - down right
 			[]grid.Point{
-				{X: c.X - 1, Y: c.Y - 1},
-				{X: c.X, Y: c.Y},
-				{X: c.X + 1, Y: c.Y + 1},
+				{X: p.X - 1, Y: p.Y - 1},
+				{X: p.X, Y: p.Y},
+				{X: p.X + 1, Y: p.Y + 1},
 			},
 			// up right - down left
 			[]grid.Point{
-				{X: c.X + 1, Y: c.Y - 1},
-				{X: c.X, Y: c.Y},
-				{X: c.X - 1, Y: c.Y + 1},
+				{X: p.X + 1, Y: p.Y - 1},
+				{X: p.X, Y: p.Y},
+				{X: p.X - 1, Y: p.Y + 1},
 			},
 		)
 
 		check(
 			// up left - down right
 			[]grid.Point{
-				{X: c.X - 1, Y: c.Y - 1},
-				{X: c.X, Y: c.Y},
-				{X: c.X + 1, Y: c.Y + 1},
+				{X: p.X - 1, Y: p.Y - 1},
+				{X: p.X, Y: p.Y},
+				{X: p.X + 1, Y: p.Y + 1},
 			},
 			// down left - up right
 			[]grid.Point{
-				{X: c.X - 1, Y: c.Y + 1},
-				{X: c.X, Y: c.Y},
-				{X: c.X + 1, Y: c.Y - 1},
+				{X: p.X - 1, Y: p.Y + 1},
+				{X: p.X, Y: p.Y},
+				{X: p.X + 1, Y: p.Y - 1},
 			},
 		)
 
 		check(
 			// down right - up left
 			[]grid.Point{
-				{X: c.X + 1, Y: c.Y + 1},
-				{X: c.X, Y: c.Y},
-				{X: c.X - 1, Y: c.Y - 1},
+				{X: p.X + 1, Y: p.Y + 1},
+				{X: p.X, Y: p.Y},
+				{X: p.X - 1, Y: p.Y - 1},
 			},
 			// up right - down left
 			[]grid.Point{
-				{X: c.X + 1, Y: c.Y - 1},
-				{X: c.X, Y: c.Y},
-				{X: c.X - 1, Y: c.Y + 1},
+				{X: p.X + 1, Y: p.Y - 1},
+				{X: p.X, Y: p.Y},
+				{X: p.X - 1, Y: p.Y + 1},
 			},
 		)
 
 		check(
 			// down right - up left
 			[]grid.Point{
-				{X: c.X + 1, Y: c.Y + 1},
-				{X: c.X, Y: c.Y},
-				{X: c.X - 1, Y: c.Y - 1},
+				{X: p.X + 1, Y: p.Y + 1},
+				{X: p.X, Y: p.Y},
+				{X: p.X - 1, Y: p.Y - 1},
 			},
 			// down left - up right
 			[]grid.Point{
-				{X: c.X - 1, Y: c.Y + 1},
-				{X: c.X, Y: c.Y},
-				{X: c.X + 1, Y: c.Y - 1},
+				{X: p.X - 1, Y: p.Y + 1},
+				{X: p.X, Y: p.Y},
+				{X: p.X + 1, Y: p.Y - 1},
 			},
 		)
 	}
