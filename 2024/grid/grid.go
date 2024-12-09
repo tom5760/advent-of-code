@@ -42,21 +42,24 @@ func Parse(r io.Reader) (*Grid, error) {
 func (g *Grid) String() string {
 	var sb strings.Builder
 
-	for row := range g.Rows() {
-		sb.Write(row.B)
+	for _, row := range g.Rows() {
+		sb.Write(row)
 		sb.WriteByte('\n')
 	}
 
 	return sb.String()
 }
 
-type Cell struct {
-	X, Y int
-	B    byte
+func (g *Grid) addr(x, y int) int {
+	return g.W*y + x
 }
 
-func (g *Grid) Value(x, y int) byte {
-	return g.b[g.W*y+x]
+func (g *Grid) Get(x, y int) byte {
+	return g.b[g.addr(x, y)]
+}
+
+func (g *Grid) Set(x, y int, b byte) {
+	g.b[g.addr(x, y)] = b
 }
 
 type Point struct {
@@ -72,20 +75,25 @@ func (g *Grid) Values(points []Point) []byte {
 			continue
 		}
 
-		v = append(v, g.Value(p.X, p.Y))
+		v = append(v, g.Get(p.X, p.Y))
 	}
 
 	return v
 }
 
-func (g *Grid) Cells() iter.Seq[Cell] {
-	return func(yield func(Cell) bool) {
-		var c Cell
+type Cell struct {
+	Point
+	B *byte
+}
 
-		for c.Y = range g.H {
-			for c.X = range g.W {
-				c.B = g.Value(c.X, c.Y)
-				if !yield(c) {
+func (g *Grid) Cells() iter.Seq2[Point, byte] {
+	return func(yield func(Point, byte) bool) {
+		var p Point
+
+		for p.Y = range g.H {
+			for p.X = range g.W {
+				b := g.Get(p.X, p.Y)
+				if !yield(p, b) {
 					return
 				}
 			}
@@ -93,19 +101,12 @@ func (g *Grid) Cells() iter.Seq[Cell] {
 	}
 }
 
-type Row struct {
-	Y int
-	B []byte
-}
-
-func (g *Grid) Rows() iter.Seq[Row] {
-	return func(yield func(Row) bool) {
-		var r Row
-
-		for r.Y = range g.H {
-			n := g.W * r.Y
-			r.B = g.b[n : n+g.W]
-			if !yield(r) {
+func (g *Grid) Rows() iter.Seq2[int, []byte] {
+	return func(yield func(int, []byte) bool) {
+		for y := range g.H {
+			i := g.addr(0, y)
+			row := g.b[i : i+g.W]
+			if !yield(y, row) {
 				return
 			}
 		}
